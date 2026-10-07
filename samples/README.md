@@ -9,11 +9,32 @@ These are real failures, produced by building the intentionally broken projects 
 Pass `--repo eval/scenarios/<name>` so dotnet-diag can map the log's paths back to the source and show
 the offending lines.
 
+**Run all of them** (builds once, then analyzes every sample):
+
+```powershell
+./samples/run-samples.ps1                     # PowerShell (Windows PowerShell 5.1 or pwsh)
+./samples/run-samples.ps1 -Filter package     # only some
+./samples/run-samples.ps1 -Installed          # use the installed dotnet-diag tool
+# if script execution is disabled on this machine:
+powershell -ExecutionPolicy Bypass -File samples/run-samples.ps1
+```
+
 ```bash
-# from the repository root
+./samples/run-samples.sh                      # bash / zsh
+FILTER=package ./samples/run-samples.sh
+```
+
+**Run one** (from the repository root):
+
+```powershell
 dotnet run --project src/DotnetDiag.Cli -- analyze samples/missing-package.binlog --repo eval/scenarios/missing-package
-dotnet-diag analyze samples/missing-package.txt --repo eval/scenarios/missing-package    # installed tool
-dotnet-diag analyze --repo eval/scenarios/failing-tests < samples/failing-tests.txt       # as if piped from dotnet test
+# as if piped from dotnet test (PowerShell has no '<' redirection):
+Get-Content samples/failing-tests.txt | dotnet run --project src/DotnetDiag.Cli -- analyze --repo eval/scenarios/failing-tests
+```
+
+```bash
+dotnet run --project src/DotnetDiag.Cli -- analyze samples/missing-package.binlog --repo eval/scenarios/missing-package
+dotnet run --project src/DotnetDiag.Cli -- analyze --repo eval/scenarios/failing-tests < samples/failing-tests.txt
 ```
 
 Regenerate them with your own SDK and OS (the logs then contain your temp-folder path):

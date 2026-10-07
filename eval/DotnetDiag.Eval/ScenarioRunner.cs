@@ -288,6 +288,15 @@ internal sealed class ScenarioRunner(ILlmProvider? provider, ContextBuilderOptio
 
     private static void CopyScenario(string source, string destination)
     {
+        // Shared, hermetic NuGet sources (eval/scenarios/nuget.config): the developer's private feeds must not
+        // change restore results or require credentials.
+        var sharedNuGetConfig = Path.Combine(Path.GetDirectoryName(Path.GetFullPath(source))!, "nuget.config");
+        if (File.Exists(sharedNuGetConfig))
+        {
+            System.IO.Directory.CreateDirectory(destination);
+            File.Copy(sharedNuGetConfig, Path.Combine(destination, "nuget.config"), overwrite: true);
+        }
+
         foreach (var file in System.IO.Directory.GetFiles(source, "*", SearchOption.AllDirectories))
         {
             var relative = Path.GetRelativePath(source, file);

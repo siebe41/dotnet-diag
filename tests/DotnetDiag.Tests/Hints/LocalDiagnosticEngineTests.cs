@@ -115,6 +115,20 @@ public class LocalDiagnosticEngineTests
     }
 
     [Fact]
+    public void Multiple_feeds_with_central_package_management_suggest_a_repo_nuget_config()
+    {
+        // Real output from a Windows machine with a company feed configured globally.
+        using var repo = new TempRepo();
+        var log = Fixtures.Parse("nu1507-multiple-sources.txt");
+        var hint = Assert.Single(new LocalDiagnosticEngine(repo.Workspace).Analyze(log).Hints);
+
+        Assert.Equal(2, log.ErrorCount);
+        Assert.Equal("NU1507", hint.Code);
+        Assert.Equal(2, hint.Occurrences);
+        Assert.Contains(hint.Suggestions, s => s.Contains("nuget.config", StringComparison.Ordinal) && s.Contains("<clear />", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void Assembly_version_conflicts_recommend_the_higher_version()
     {
         var analysis = new LocalDiagnosticEngine().Analyze(Fixtures.Parse("version-conflict.txt"));

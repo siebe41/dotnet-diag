@@ -1,0 +1,4 @@
+    D:\source\repos\dotnet-diag\src\DotnetDiag.Core\DotnetDiag.Core.csproj : error NU1507: Warning As Error: There are 2 package sources defined in your configuration. When using central package management, map your package sources with package source mapping (https://aka.ms/nuget-package-source-mapping) or specify a single package source. The following sources are defined: nuget.org, feenics
+    D:\source\repos\dotnet-diag\src\DotnetDiag.Cli\DotnetDiag.Cli.csproj : error NU1507: Warning As Error: There are 2 package sources defined in your configuration. When using central package management, map your package sources with package source mapping (https://aka.ms/nuget-package-source-mapping) or specify a single package source. The following sources are defined: nuget.org, feenics
+
+The build failed. Fix the build errors and run again.

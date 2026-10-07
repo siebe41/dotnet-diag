@@ -5,6 +5,8 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <!-- Keep NuGet audit findings visible without breaking every clone the day a new advisory is published. -->
+    <WarningsNotAsErrors>$(WarningsNotAsErrors);NU1901;NU1902;NU1903;NU1904</WarningsNotAsErrors>
     <Deterministic>true</Deterministic>
     <Authors>dotnet-diag contributors</Authors>
     <Copyright>Copyright (c) dotnet-diag contributors</Copyright>

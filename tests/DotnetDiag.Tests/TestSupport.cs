@@ -21,6 +21,7 @@ internal static class Fixtures
         "dotnet-test-vstest.txt",
         "dotnet-test-mtp.txt",
         "github-actions-build.txt",
+        "nu1507-multiple-sources.txt",
     ];
 }
 
