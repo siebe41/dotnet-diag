@@ -54,8 +54,8 @@ The package ID is `DotnetDiag.Tool` because `dotnet-diag` is already taken on nu
 To install from source (for example, before the package is published):
 
 ```bash
-git clone https://github.com/siebe41/SemanticKernel.Extensions.git
-cd SemanticKernel.Extensions
+git clone https://github.com/siebe41/dotnet-diag.git
+cd dotnet-diag
 dotnet pack src/DotnetDiag.Cli -c Release
 dotnet tool install --global DotnetDiag.Tool --add-source ./artifacts/nupkg
 ```

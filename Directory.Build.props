@@ -9,7 +9,7 @@
     <Authors>dotnet-diag contributors</Authors>
     <Copyright>Copyright (c) dotnet-diag contributors</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <RepositoryUrl>https://github.com/siebe41/SemanticKernel.Extensions</RepositoryUrl>
+    <RepositoryUrl>https://github.com/siebe41/dotnet-diag</RepositoryUrl>
     <VersionPrefix>0.1.0</VersionPrefix>
   </PropertyGroup>
 </Project>
