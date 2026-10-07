@@ -1,0 +1,13 @@
+{
+  "description": "The project targets a .NET version the installed SDK cannot build.",
+  "command": "build",
+  "target": "src/Worker/Worker.csproj",
+  "expect": {
+    "codes": ["NETSDK1045"],
+    "topHint": "NETSDK1045",
+    "missingPackages": [],
+    "suggestionContains": [".NET 99.0"],
+    "aiKeywords": ["SDK"]
+  },
+  "fix": "none"
+}

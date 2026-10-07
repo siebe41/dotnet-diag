@@ -1,0 +1,13 @@
+{
+  "description": "AddHttpClient() is an extension method from Microsoft.Extensions.Http, which is not referenced.",
+  "command": "build",
+  "target": "src/Api/Api.csproj",
+  "expect": {
+    "codes": ["CS1061"],
+    "topHint": "CS1061",
+    "missingPackages": ["Microsoft.Extensions.Http"],
+    "suggestionContains": ["package Microsoft.Extensions.Http"],
+    "aiKeywords": ["Microsoft.Extensions.Http"]
+  },
+  "fix": "auto"
+}

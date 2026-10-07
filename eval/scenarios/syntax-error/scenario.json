@@ -1,0 +1,13 @@
+{
+  "description": "Missing semicolon.",
+  "command": "build",
+  "target": "src/Calc/Calc.csproj",
+  "expect": {
+    "codes": ["CS1002"],
+    "topHint": "CS1002",
+    "missingPackages": [],
+    "suggestionContains": ["src/Calc/Program.cs:3:25"],
+    "aiKeywords": [";"]
+  },
+  "fix": "none"
+}

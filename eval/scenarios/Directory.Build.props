@@ -1,0 +1,4 @@
+<Project>
+  <!-- Scenarios are copied to a temp folder before building; this file only stops the repo's settings
+       (warnings-as-errors, central package management) from leaking in if one is built in place. -->
+</Project>

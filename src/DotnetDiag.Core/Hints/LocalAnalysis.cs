@@ -36,9 +36,8 @@ public sealed record MissingPackage(string Package, MissingPackageReason Reason,
     {
         MissingPackageReason.MissingUsing => $"add `using` for {Package} types (package is already referenced)",
         MissingPackageReason.NotFoundInFeeds => "dotnet nuget list source  # check feeds/credentials",
-        _ => Project is null
-            ? $"dotnet add package {Package}"
-            : $"dotnet add {Project} package {Package}",
+        _ => (Project is null ? $"dotnet add package {Package}" : $"dotnet add {Project} package {Package}")
+             + (Version is null ? string.Empty : $" --version {Version}"),
     };
 }
 

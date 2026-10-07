@@ -1,0 +1,13 @@
+{
+  "description": "ImplicitUsings is off and System.Linq is not imported, so .Where() is not found.",
+  "command": "build",
+  "target": "src/Report/Report.csproj",
+  "expect": {
+    "codes": ["CS1061"],
+    "topHint": "CS1061",
+    "missingPackages": [],
+    "suggestionContains": ["using System.Linq;"],
+    "aiKeywords": ["System.Linq"]
+  },
+  "fix": "none"
+}

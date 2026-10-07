@@ -1,0 +1,13 @@
+{
+  "description": "Code uses Newtonsoft.Json but the project never referenced the package.",
+  "command": "build",
+  "target": "src/App/App.csproj",
+  "expect": {
+    "codes": ["CS0246"],
+    "topHint": "CS0246",
+    "missingPackages": ["Newtonsoft.Json"],
+    "suggestionContains": ["dotnet add src/App/App.csproj package Newtonsoft.Json"],
+    "aiKeywords": ["Newtonsoft.Json"]
+  },
+  "fix": "auto"
+}

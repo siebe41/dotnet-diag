@@ -1,0 +1,13 @@
+{
+  "description": "A direct reference pins Microsoft.Extensions.Logging.Abstractions 8.0.0 below what Microsoft.Extensions.Http 9.0.0 needs (NU1605).",
+  "command": "build",
+  "target": "src/Billing/Billing.csproj",
+  "expect": {
+    "codes": ["NU1605"],
+    "topHint": "NU1605",
+    "versionConflicts": ["Microsoft.Extensions.Logging.Abstractions"],
+    "suggestionContains": ["--version 9.0.0"],
+    "aiKeywords": ["9.0.0"]
+  },
+  "fix": "auto"
+}

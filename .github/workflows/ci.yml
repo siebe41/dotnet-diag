@@ -37,12 +37,42 @@ jobs:
 
       - name: Test
         shell: bash
-        run: dotnet test --no-build -c Release 2>&1 | tee artifacts/logs/test-output.txt; exit ${PIPESTATUS[0]}
+        run: |
+          dotnet test --no-build -c Release --logger "trx;LogFileName=results.trx" --results-directory artifacts/test-results 2>&1 \
+            | tee artifacts/logs/test-output.txt
+          exit ${PIPESTATUS[0]}
 
       - name: Pack global tool
         run: dotnet pack src/DotnetDiag.Cli --no-build -c Release
 
-      # Dogfooding: explain our own failures with the tool we just built.
+      # Install the package exactly as a user would and run it through the OS's own shim (dotnet-diag.exe on Windows).
+      - name: Smoke test installed tool
+        shell: bash
+        run: |
+          set -u
+          dotnet tool install DotnetDiag.Tool --tool-path .tools --add-source artifacts/nupkg
+          export PATH="$PWD/.tools:$PATH"
+          fixtures=tests/DotnetDiag.Tests/Fixtures
+          expect() { case "$1" in *"$2"*) ;; *) echo "expected output to contain: $2"; echo "$1" | head -40; exit 1;; esac; }
+
+          dotnet-diag --version
+          expect "$(dotnet-diag explain NU1605)" "Package downgrade detected"
+
+          # --exit-code gates CI: problems found => 1
+          set +e
+          out=$(dotnet-diag analyze "$fixtures/missing-package-cs0246.txt" --offline --format json --exit-code)
+          code=$?
+          set -e
+          [ "$code" -eq 1 ] || { echo "expected exit code 1, got $code"; exit 1; }
+          expect "$out" '"errorCount": 5'
+
+          # Piped input, as in: dotnet test | dotnet-diag analyze
+          expect "$(dotnet-diag analyze --offline --format markdown < "$fixtures/dotnet-test-vstest.txt")" "## Failing tests"
+
+          # The binlog this very build produced must parse on this OS.
+          expect "$(dotnet-diag analyze artifacts/logs/build.binlog --offline --format json)" '"kind": "binaryLog"'
+          echo "smoke test passed"
+
       - name: Diagnose failure with dotnet-diag
         if: failure()
         shell: bash
@@ -59,9 +89,46 @@ jobs:
           name: nupkg
           path: artifacts/nupkg/*.nupkg
 
-      - name: Upload logs
+      - name: Upload test results and logs
         if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: logs-${{ matrix.os }}
-          path: artifacts/logs/
+          path: |
+            artifacts/logs/
+            artifacts/test-results/
+
+  eval:
+    name: Usefulness eval (${{ matrix.os }})
+    needs: build
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      # Breaks ~10 real projects on this OS, diagnoses them from binlogs and console output,
+      # applies the tool's suggested fixes and rebuilds. Fails on any regression outside known gaps.
+      - name: Run eval
+        shell: bash
+        run: |
+          dotnet run --project eval/DotnetDiag.Eval -c Release -- --report "artifacts/eval/report-${{ matrix.os }}.md"
+
+      - name: Publish report
+        if: always()
+        shell: bash
+        run: |
+          [ -f "artifacts/eval/report-${{ matrix.os }}.md" ] && cat "artifacts/eval/report-${{ matrix.os }}.md" >> "$GITHUB_STEP_SUMMARY" || true
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: eval-report-${{ matrix.os }}
+          path: artifacts/eval/

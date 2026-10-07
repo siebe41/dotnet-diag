@@ -1,0 +1,13 @@
+{
+  "description": "PackageReference to a package that exists in no configured feed (typo or missing private feed).",
+  "command": "build",
+  "target": "src/Payments/Payments.csproj",
+  "expect": {
+    "codes": ["NU1101"],
+    "topHint": "NU1101",
+    "missingPackages": ["Contoso.Payments.DoesNotExist"],
+    "suggestionContains": ["dotnet nuget list source"],
+    "aiKeywords": ["Contoso.Payments.DoesNotExist"]
+  },
+  "fix": "none"
+}

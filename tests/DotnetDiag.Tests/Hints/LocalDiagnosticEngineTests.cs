@@ -23,6 +23,20 @@ public class LocalDiagnosticEngineTests
     }
 
     [Fact]
+    public void Package_suggestions_align_with_the_projects_package_family_version()
+    {
+        // The sample project references Microsoft.Extensions.Http 9.0.0 (via Directory.Packages.props); the latest
+        // EF Core would require newer Microsoft.Extensions.* packages and fail restore with NU1605.
+        using var repo = new TempRepo();
+        var analysis = new LocalDiagnosticEngine(repo.Workspace).Analyze(Fixtures.Parse("missing-package-cs0246.txt"));
+
+        var efCore = analysis.MissingPackages.Single(m => m.Package == "Microsoft.EntityFrameworkCore");
+        Assert.Equal("9.0.0", efCore.Version);
+        Assert.Equal("dotnet add src/Shop.Api/Shop.Api.csproj package Microsoft.EntityFrameworkCore --version 9.0.0", efCore.SuggestedCommand);
+        Assert.Null(analysis.MissingPackages.Single(m => m.Package == "Newtonsoft.Json").Version); // unrelated family: latest
+    }
+
+    [Fact]
     public void Detects_referenced_package_with_missing_using()
     {
         using var repo = new TempRepo();

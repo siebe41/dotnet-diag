@@ -1,0 +1,14 @@
+{
+  "description": "global.json pins an SDK that is not installed; the dotnet host fails before MSBuild runs.",
+  "command": "build",
+  "target": "src/Svc/Svc.csproj",
+  "inputs": ["text"],
+  "expect": {
+    "codes": [],
+    "hintCodes": ["SDK"],
+    "suggestionContains": ["global.json"],
+    "aiKeywords": ["global.json"]
+  },
+  "fix": "none",
+  "knownGap": "The host's 'A compatible .NET SDK was not found' message is not in MSBuild's diagnostic format, so it is not recognized yet."
+}

@@ -1,0 +1,13 @@
+{
+  "description": "Two failing tests: integer division bug (assertion) and a NullReferenceException in production code.",
+  "command": "test",
+  "target": "tests/Calculator.Tests/Calculator.Tests.csproj",
+  "inputs": ["text"],
+  "expect": {
+    "testFailures": 2,
+    "hintCodes": ["NullReferenceException", "TEST"],
+    "suggestionContains": ["src/Calculator/History.cs:9"],
+    "aiKeywords": ["integer"]
+  },
+  "fix": "none"
+}

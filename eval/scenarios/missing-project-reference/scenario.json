@@ -1,0 +1,14 @@
+{
+  "description": "App uses a sibling project's namespace without a ProjectReference.",
+  "command": "build",
+  "target": "src/App/App.csproj",
+  "expect": {
+    "codes": ["CS0246"],
+    "topHint": "CS0246",
+    "missingPackages": [],
+    "suggestionContains": ["dotnet add src/App/App.csproj reference"],
+    "aiKeywords": ["reference"]
+  },
+  "fix": "auto",
+  "knownGap": "The offline engine maps types to NuGet packages but does not yet suggest ProjectReferences to projects in the same repository."
+}

@@ -359,7 +359,8 @@ src/Broken/Program.cs:1
 |---|---|
 | `src/DotnetDiag.Core` | Parsers (`Parsing/`), git working-tree access (`Workspace/`), the offline knowledge base and hint engine (`Hints/`), the token-budgeted context and prompt builders (`Context/`), HTTP providers (`Providers/`), and the Markdown/JSON reports (`Reporting/`). It has no UI dependencies. |
 | `src/DotnetDiag.Cli` | The `System.CommandLine` command tree (`analyze`, `explain`, `doctor`), Spectre.Console rendering, and global-tool packaging. |
-| `tests/DotnetDiag.Tests` | xUnit tests against realistic fixture logs: parser accuracy, hints, the context budget, prompt construction, provider HTTP contracts (with a fake handler), and CLI end-to-end. |
+| `tests/DotnetDiag.Tests` | xUnit tests against realistic fixture logs: parser accuracy, hints, the context budget, prompt construction, provider HTTP contracts (with a fake handler), CLI end-to-end, and Windows/macOS/Linux platform behavior. |
+| `eval/` | Usefulness evaluation: intentionally broken projects that are built for real, diagnosed, and fixed with the tool's own suggestions. Also includes a field-trial mode for grading real logs. See [docs/TESTING.md](docs/TESTING.md). |
 
 ### Known offline codes
 
@@ -377,7 +378,10 @@ dotnet build
 dotnet test
 dotnet run --project src/DotnetDiag.Cli -- analyze tests/DotnetDiag.Tests/Fixtures/nuget-restore.txt
 dotnet pack src/DotnetDiag.Cli -c Release      # → artifacts/nupkg/DotnetDiag.Tool.<version>.nupkg
+dotnet run --project eval/DotnetDiag.Eval      # usefulness eval: break real projects, diagnose, verify fixes
 ```
+
+[docs/TESTING.md](docs/TESTING.md) describes the full verification plan: unit tests, platform tests, the usefulness eval with its scorecard and targets, and a field-trial protocol for real failures.
 
 ## License
 

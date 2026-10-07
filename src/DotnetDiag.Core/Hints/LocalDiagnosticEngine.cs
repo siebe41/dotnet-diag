@@ -316,8 +316,9 @@ public sealed partial class LocalDiagnosticEngine(GitWorkspace? workspace = null
             }
             else
             {
-                missing.Add(new MissingPackage(package, MissingPackageReason.NotReferenced, d.Message, project));
-                suggestions.Add($"'{candidate}' comes from the {package} package: `dotnet add {project ?? "<project>"} package {package}`.");
+                var add = NotReferenced(package, d);
+                missing.Add(add);
+                suggestions.Add($"'{candidate}' comes from the {package} package: `{CommandFor(add)}`.");
             }
         }
 
@@ -351,8 +352,9 @@ public sealed partial class LocalDiagnosticEngine(GitWorkspace? workspace = null
                 }
                 else
                 {
-                    missing.Add(new MissingPackage(extension.Package, MissingPackageReason.NotReferenced, d.Message, ProjectName(d)));
-                    suggestions.Add($"`{member}` is an extension method from {extension.Package}: `dotnet add {ProjectName(d) ?? "<project>"} package {extension.Package}`.");
+                    var add = NotReferenced(extension.Package, d);
+                    missing.Add(add);
+                    suggestions.Add($"`{member}` is an extension method from {extension.Package}: `{CommandFor(add)}`.");
                 }
             }
             else
@@ -503,18 +505,16 @@ public sealed partial class LocalDiagnosticEngine(GitWorkspace? workspace = null
         };
     }
 
-    private bool IsPackageReferenced(BuildDiagnostic diagnostic, string package)
+    private bool IsPackageReferenced(BuildDiagnostic diagnostic, string package) =>
+        PackageReferences(diagnostic).Any(r => r.Name.Equals(package, StringComparison.OrdinalIgnoreCase));
+
+    private IReadOnlyList<PackageReferenceInfo> PackageReferences(BuildDiagnostic diagnostic)
     {
         var projectPath = ProjectPath(diagnostic);
-        if (projectPath is null)
-        {
-            return false;
-        }
-
-        var resolved = workspace?.Resolve(projectPath) ?? (File.Exists(projectPath) ? projectPath : null);
+        var resolved = projectPath is null ? null : workspace?.Resolve(projectPath) ?? (File.Exists(projectPath) ? projectPath : null);
         if (resolved is null)
         {
-            return false;
+            return [];
         }
 
         if (!_packageCache.TryGetValue(resolved, out var references))
@@ -523,8 +523,40 @@ public sealed partial class LocalDiagnosticEngine(GitWorkspace? workspace = null
             _packageCache[resolved] = references;
         }
 
-        return references.Any(r => r.Name.Equals(package, StringComparison.OrdinalIgnoreCase));
+        return references;
     }
+
+    private MissingPackage NotReferenced(string package, BuildDiagnostic diagnostic) =>
+        new(package, MissingPackageReason.NotReferenced, diagnostic.Message, ProjectName(diagnostic), AlignedVersion(package, diagnostic));
+
+    private static string CommandFor(MissingPackage package) =>
+        package.Project is null ? package.SuggestedCommand.Replace("dotnet add package", "dotnet add <project> package", StringComparison.Ordinal) : package.SuggestedCommand;
+
+    /// <summary>
+    /// Microsoft.Extensions.*, EF Core and ASP.NET Core packages ship in lockstep with each .NET release
+    /// (EF Core 10 needs Microsoft.Extensions.* 10). Adding the latest version next to older release-train
+    /// packages causes NU1605 downgrades, so match the version the project already uses for that train.
+    /// </summary>
+    private string? AlignedVersion(string package, BuildDiagnostic diagnostic)
+    {
+        static bool OnReleaseTrain(string name) =>
+            ReleaseTrainPrefixes.Any(p => name.StartsWith(p, StringComparison.OrdinalIgnoreCase));
+
+        if (!OnReleaseTrain(package))
+        {
+            return null;
+        }
+
+        return PackageReferences(diagnostic)
+            .Where(r => OnReleaseTrain(r.Name) && r.Version is not null)
+            .Select(r => (Raw: r.Version!, Parsed: Version.TryParse(r.Version!.Split('-')[0], out var v) ? v : null))
+            .Where(r => r.Parsed is not null)
+            .OrderByDescending(r => r.Parsed)
+            .Select(r => r.Raw)
+            .FirstOrDefault();
+    }
+
+    private static readonly string[] ReleaseTrainPrefixes = ["Microsoft.Extensions.", "Microsoft.EntityFrameworkCore", "Microsoft.AspNetCore."];
 
     private string Location(BuildDiagnostic diagnostic) => diagnostic.DisplayLocation(Relative);
 

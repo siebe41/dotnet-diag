@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>DotnetDiag.Eval</RootNamespace>
+    <IsPackable>false</IsPackable>
+    <Description>Builds intentionally broken projects and scores whether dotnet-diag's diagnosis and fixes are actually useful.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Spectre.Console" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\DotnetDiag.Core\DotnetDiag.Core.csproj" />
+  </ItemGroup>
+
+</Project>
