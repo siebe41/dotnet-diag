@@ -1,0 +1,11 @@
+  Determining projects to restore...
+  Restored /tmp/dotnet-diag-samples/missing-extension-package/src/Api/Api.csproj (in 340 ms).
+/tmp/dotnet-diag-samples/missing-extension-package/src/Api/Program.cs(4,10): error CS1061: 'ServiceCollection' does not contain a definition for 'AddHttpClient' and no accessible extension method 'AddHttpClient' accepting a first argument of type 'ServiceCollection' could be found (are you missing a using directive or an assembly reference?) [/tmp/dotnet-diag-samples/missing-extension-package/src/Api/Api.csproj]
+
+Build FAILED.
+
+/tmp/dotnet-diag-samples/missing-extension-package/src/Api/Program.cs(4,10): error CS1061: 'ServiceCollection' does not contain a definition for 'AddHttpClient' and no accessible extension method 'AddHttpClient' accepting a first argument of type 'ServiceCollection' could be found (are you missing a using directive or an assembly reference?) [/tmp/dotnet-diag-samples/missing-extension-package/src/Api/Api.csproj]
+    0 Warning(s)
+    1 Error(s)
+
+Time Elapsed 00:00:01.61

@@ -88,6 +88,9 @@ dotnet-diag analyze ./artifacts/logs
 # Pipe a failing test run (stderr included)
 dotnet test 2>&1 | dotnet-diag analyze
 
+# Try the committed sample failures (real logs from intentionally broken projects; see samples/README.md)
+dotnet-diag analyze samples/missing-package.binlog --repo eval/scenarios/missing-package
+
 # A log downloaded from CI, mapped onto your local checkout
 dotnet-diag analyze ~/Downloads/build-log.txt --repo .
 

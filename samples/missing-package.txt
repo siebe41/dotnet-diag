@@ -1,0 +1,11 @@
+  Determining projects to restore...
+  Restored /tmp/dotnet-diag-samples/missing-package/src/App/App.csproj (in 105 ms).
+/tmp/dotnet-diag-samples/missing-package/src/App/Program.cs(1,7): error CS0246: The type or namespace name 'Newtonsoft' could not be found (are you missing a using directive or an assembly reference?) [/tmp/dotnet-diag-samples/missing-package/src/App/App.csproj]
+
+Build FAILED.
+
+/tmp/dotnet-diag-samples/missing-package/src/App/Program.cs(1,7): error CS0246: The type or namespace name 'Newtonsoft' could not be found (are you missing a using directive or an assembly reference?) [/tmp/dotnet-diag-samples/missing-package/src/App/App.csproj]
+    0 Warning(s)
+    1 Error(s)
+
+Time Elapsed 00:00:01.46

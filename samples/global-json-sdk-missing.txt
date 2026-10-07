@@ -1,0 +1,16 @@
+The command could not be loaded, possibly because:
+  * You intended to execute a .NET application:
+      The application 'build' does not exist.
+  * You intended to execute a .NET SDK command:
+      A compatible .NET SDK was not found.
+
+Requested SDK version: 6.0.100
+global.json file: /tmp/dotnet-diag-samples/global-json-sdk-missing/global.json
+
+Installed SDKs:
+
+Install the [6.0.100] .NET SDK or update [/tmp/dotnet-diag-samples/global-json-sdk-missing/global.json] to match an installed SDK.
+9.0.318 [/root/.dotnet/sdk]
+
+Learn about SDK resolution:
+https://aka.ms/dotnet/sdk-not-found

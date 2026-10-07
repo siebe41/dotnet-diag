@@ -1,0 +1,15 @@
+  Determining projects to restore...
+/tmp/dotnet-diag-samples/package-downgrade/src/Billing/Billing.csproj : error NU1605: Warning As Error: Detected package downgrade: Microsoft.Extensions.Logging.Abstractions from 9.0.0 to 8.0.0. Reference the package directly from the project to select a different version. 
+/tmp/dotnet-diag-samples/package-downgrade/src/Billing/Billing.csproj : error NU1605:  Billing -> Microsoft.Extensions.Http 9.0.0 -> Microsoft.Extensions.Logging.Abstractions (>= 9.0.0) 
+/tmp/dotnet-diag-samples/package-downgrade/src/Billing/Billing.csproj : error NU1605:  Billing -> Microsoft.Extensions.Logging.Abstractions (>= 8.0.0)
+  Failed to restore /tmp/dotnet-diag-samples/package-downgrade/src/Billing/Billing.csproj (in 396 ms).
+
+Build FAILED.
+
+/tmp/dotnet-diag-samples/package-downgrade/src/Billing/Billing.csproj : error NU1605: Warning As Error: Detected package downgrade: Microsoft.Extensions.Logging.Abstractions from 9.0.0 to 8.0.0. Reference the package directly from the project to select a different version. 
+/tmp/dotnet-diag-samples/package-downgrade/src/Billing/Billing.csproj : error NU1605:  Billing -> Microsoft.Extensions.Http 9.0.0 -> Microsoft.Extensions.Logging.Abstractions (>= 9.0.0) 
+/tmp/dotnet-diag-samples/package-downgrade/src/Billing/Billing.csproj : error NU1605:  Billing -> Microsoft.Extensions.Logging.Abstractions (>= 8.0.0)
+    0 Warning(s)
+    1 Error(s)
+
+Time Elapsed 00:00:01.30

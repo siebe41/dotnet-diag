@@ -1,0 +1,11 @@
+  Determining projects to restore...
+  Restored /tmp/dotnet-diag-samples/syntax-error/src/Calc/Calc.csproj (in 94 ms).
+/tmp/dotnet-diag-samples/syntax-error/src/Calc/Program.cs(3,25): error CS1002: ; expected [/tmp/dotnet-diag-samples/syntax-error/src/Calc/Calc.csproj]
+
+Build FAILED.
+
+/tmp/dotnet-diag-samples/syntax-error/src/Calc/Program.cs(3,25): error CS1002: ; expected [/tmp/dotnet-diag-samples/syntax-error/src/Calc/Calc.csproj]
+    0 Warning(s)
+    1 Error(s)
+
+Time Elapsed 00:00:01.59

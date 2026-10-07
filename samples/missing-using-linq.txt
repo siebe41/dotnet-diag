@@ -1,0 +1,11 @@
+  Determining projects to restore...
+  Restored /tmp/dotnet-diag-samples/missing-using-linq/src/Report/Report.csproj (in 111 ms).
+/tmp/dotnet-diag-samples/missing-using-linq/src/Report/Program.cs(5,20): error CS1061: 'List<int>' does not contain a definition for 'Where' and no accessible extension method 'Where' accepting a first argument of type 'List<int>' could be found (are you missing a using directive or an assembly reference?) [/tmp/dotnet-diag-samples/missing-using-linq/src/Report/Report.csproj]
+
+Build FAILED.
+
+/tmp/dotnet-diag-samples/missing-using-linq/src/Report/Program.cs(5,20): error CS1061: 'List<int>' does not contain a definition for 'Where' and no accessible extension method 'Where' accepting a first argument of type 'List<int>' could be found (are you missing a using directive or an assembly reference?) [/tmp/dotnet-diag-samples/missing-using-linq/src/Report/Report.csproj]
+    0 Warning(s)
+    1 Error(s)
+
+Time Elapsed 00:00:01.51

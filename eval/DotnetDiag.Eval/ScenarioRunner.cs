@@ -77,6 +77,40 @@ internal sealed class ScenarioRunner(ILlmProvider? provider, ContextBuilderOptio
         }
     }
 
+    /// <summary>
+    /// Builds the broken scenario once and keeps its outputs as sample inputs: the MSBuild binary log (when the
+    /// build gets far enough to write one) and the console output exactly as a developer would see it.
+    /// </summary>
+    public async Task<(ProcessResult Build, string? Binlog, string Text)> GenerateSampleAsync(Scenario scenario, string outputDirectory, CancellationToken cancellationToken)
+    {
+        // A stable folder name keeps the generated logs free of random GUIDs.
+        var work = Path.Combine(Path.GetTempPath(), "dotnet-diag-samples", scenario.Name);
+        TryDelete(work);
+        CopyScenario(scenario.Directory, work);
+        try
+        {
+            var build = await RunScenarioCommandAsync(scenario, work, binlog: true, cancellationToken);
+            System.IO.Directory.CreateDirectory(outputDirectory);
+
+            var text = Path.Combine(outputDirectory, $"{scenario.Name}.txt");
+            File.WriteAllText(text, build.Output);
+
+            string? binlog = null;
+            var producedBinlog = Path.Combine(work, "msbuild.binlog");
+            if (File.Exists(producedBinlog))
+            {
+                binlog = Path.Combine(outputDirectory, $"{scenario.Name}.binlog");
+                File.Copy(producedBinlog, binlog, overwrite: true);
+            }
+
+            return (build, binlog, text);
+        }
+        finally
+        {
+            TryDelete(work);
+        }
+    }
+
     private async Task<InputResult> AnalyzeAsync(Scenario scenario, string input, string work, GitWorkspace workspace, CancellationToken cancellationToken)
     {
         var pipeline = new DiagnosisPipeline(provider, contextOptions);

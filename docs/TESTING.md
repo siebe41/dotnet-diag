@@ -92,6 +92,14 @@ The eval has already found bugs that unit tests missed:
 - The tool suggested `dotnet add package Microsoft.Extensions.Http` at the latest version next to a 9.0.0 `Microsoft.Extensions.*` reference. Following that advice produced `NU1605`. Suggestions for Microsoft.Extensions.*, EF Core and ASP.NET Core packages now match the release-train version the project already uses.
 - A scenario I expected to produce `CS1002` produced `CS1003`. The tool was right and my expectation was wrong.
 
+### Sample logs
+
+`samples/` contains the real binlog and console output of every scenario's failure. Use it for quick manual tries and demos, without building anything. `SamplesTests` keeps those files in step with the scenarios. Regenerate them after changing a scenario, or to get logs from your own OS and SDK:
+
+```bash
+dotnet run --project eval/DotnetDiag.Eval -- --generate-samples samples
+```
+
 ### With an AI provider
 
 ```bash

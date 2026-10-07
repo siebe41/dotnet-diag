@@ -53,6 +53,11 @@ if (scenarios.Count == 0)
     return 2;
 }
 
+if (options.SamplesDirectory is { } samplesDirectory)
+{
+    return await Samples.GenerateAsync(scenarios, samplesDirectory, new ScenarioRunner(null, new ContextBuilderOptions(), keepWorkDirectories: false));
+}
+
 var settings = ProviderConfiguration.Resolve(options.Provider);
 if (settings.Kind != ProviderKind.None && settings.Problem is not null)
 {
@@ -136,6 +141,7 @@ static string? FindScenariosDirectory()
 }
 
 internal sealed record EvalOptions(
+    string? SamplesDirectory,
     string? ReviewDirectory,
     string? Repo,
     string? ScenariosDirectory,
@@ -157,6 +163,9 @@ internal sealed record EvalOptions(
           --max-context-tokens <n>    Budget for the LLM bundle (default 1000)
           --provider <name>           none | ollama | anthropic | openai  (default: offline)
 
+        Sample logs:
+          --generate-samples <dir>    Build every (filtered) scenario once and save <name>.binlog + <name>.txt to <dir>
+
         Field trial (real logs, graded by people):
           --review <dir>              Analyze every .binlog/.log/.txt in <dir> and write a review sheet (.md + .csv)
           --repo <dir>                Source checkout the logs belong to (for paths and source context)
@@ -165,7 +174,7 @@ internal sealed record EvalOptions(
 
     public static EvalOptions? Parse(string[] args)
     {
-        string? review = null, repo = null, scenarios = null, filter = null, report = null, model = null, endpoint = null, effort = null;
+        string? samples = null, review = null, repo = null, scenarios = null, filter = null, report = null, model = null, endpoint = null, effort = null;
         ProviderKind kind = ProviderKind.None;
         bool keep = false, strict = false;
         var budget = 1000;
@@ -174,6 +183,7 @@ internal sealed record EvalOptions(
             string Next() => i + 1 < args.Length ? args[++i] : throw new ArgumentException($"{args[i]} needs a value");
             switch (args[i])
             {
+                case "--generate-samples": samples = Next(); break;
                 case "--review": review = Next(); break;
                 case "--repo": repo = Next(); break;
                 case "--scenarios": scenarios = Next(); break;
@@ -197,7 +207,7 @@ internal sealed record EvalOptions(
         }
 
         // Offline unless a provider is explicitly requested on the command line.
-        return new EvalOptions(review, repo, scenarios, filter, report, keep, strict, budget,
+        return new EvalOptions(samples, review, repo, scenarios, filter, report, keep, strict, budget,
             new ProviderOverrides(kind, model, endpoint, Effort: effort));
     }
 }

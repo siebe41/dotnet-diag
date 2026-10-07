@@ -1,0 +1,31 @@
+  Determining projects to restore...
+  Restored /tmp/dotnet-diag-samples/failing-tests/src/Calculator/Calculator.csproj (in 116 ms).
+  Restored /tmp/dotnet-diag-samples/failing-tests/tests/Calculator.Tests/Calculator.Tests.csproj (in 328 ms).
+  Calculator -> /tmp/dotnet-diag-samples/failing-tests/src/Calculator/bin/Debug/net9.0/Calculator.dll
+  Calculator.Tests -> /tmp/dotnet-diag-samples/failing-tests/tests/Calculator.Tests/bin/Debug/net9.0/Calculator.Tests.dll
+Test run for /tmp/dotnet-diag-samples/failing-tests/tests/Calculator.Tests/bin/Debug/net9.0/Calculator.Tests.dll (.NETCoreApp,Version=v9.0)
+VSTest version 17.14.1 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.23]     Calculator.Tests.CalculatorTests.Last_after_clear_does_not_throw [FAIL]
+[xUnit.net 00:00:00.24]     Calculator.Tests.CalculatorTests.Divide_returns_fraction [FAIL]
+  Failed Calculator.Tests.CalculatorTests.Last_after_clear_does_not_throw [3 ms]
+  Error Message:
+   System.NullReferenceException : Object reference not set to an instance of an object.
+  Stack Trace:
+     at Calculator.History.Last() in /tmp/dotnet-diag-samples/failing-tests/src/Calculator/History.cs:line 9
+   at Calculator.Tests.CalculatorTests.Last_after_clear_does_not_throw() in /tmp/dotnet-diag-samples/failing-tests/tests/Calculator.Tests/CalculatorTests.cs:line 15
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed Calculator.Tests.CalculatorTests.Divide_returns_fraction [15 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: 2.5
+Actual:   2
+  Stack Trace:
+     at Calculator.Tests.CalculatorTests.Divide_returns_fraction() in /tmp/dotnet-diag-samples/failing-tests/tests/Calculator.Tests/CalculatorTests.cs:line 8
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:     2, Passed:     1, Skipped:     0, Total:     3, Duration: 36 ms - Calculator.Tests.dll (net9.0)
