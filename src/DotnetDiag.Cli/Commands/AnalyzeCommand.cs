@@ -179,7 +179,9 @@ internal static class AnalyzeCommand
                     "No input. Pass a log file (dotnet-diag analyze msbuild.binlog) or pipe output (dotnet test 2>&1 | dotnet-diag analyze).");
             }
 
-            var text = await Console.In.ReadToEndAsync(cancellationToken);
+            // Raw bytes: Console.In would decode with the OEM code page on Windows.
+            using var stdin = Console.OpenStandardInput();
+            var text = await TextDecoding.ReadStreamAsync(stdin, cancellationToken);
             return string.IsNullOrWhiteSpace(text)
                 ? new InputSource("stdin", null, null, "stdin was empty.")
                 : new InputSource("stdin", null, text, null);

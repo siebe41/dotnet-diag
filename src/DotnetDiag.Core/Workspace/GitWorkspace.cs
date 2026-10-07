@@ -109,6 +109,10 @@ public sealed class GitWorkspace
         return null;
     }
 
+    /// <summary>True when <paramref name="path"/> resolves to a file inside this workspace.</summary>
+    public bool Contains(string path) =>
+        Resolve(path) is { } resolved && !Path.IsPathRooted(ToRelative(resolved));
+
     /// <summary>Repository-relative, forward-slash path when inside the workspace; otherwise the input.</summary>
     public string ToRelative(string path)
     {
@@ -125,6 +129,11 @@ public sealed class GitWorkspace
             if (!relative.StartsWith("..", StringComparison.Ordinal) && !Path.IsPathRooted(relative))
             {
                 return relative.Replace('\\', '/');
+            }
+
+            if (MapThroughRootName(full) is { } mapped)
+            {
+                return mapped;
             }
         }
         catch (Exception ex) when (ex is ArgumentException or NotSupportedException)
@@ -168,6 +177,38 @@ public sealed class GitWorkspace
         }
 
         return result;
+    }
+
+    /// <summary>
+    /// Handles the same checkout reached through another path, e.g. macOS's /var → /private/var symlink or a
+    /// symlinked/junctioned source folder: find the repository folder name in the path and check that the
+    /// remainder exists under this root.
+    /// </summary>
+    private string? MapThroughRootName(string fullPath)
+    {
+        var rootName = Path.GetFileName(Root.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
+        if (string.IsNullOrEmpty(rootName))
+        {
+            return null;
+        }
+
+        var comparison = OperatingSystem.IsLinux() ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
+        var segments = fullPath.Replace('\\', '/').Split('/', StringSplitOptions.RemoveEmptyEntries);
+        for (var i = 0; i < segments.Length - 1; i++)
+        {
+            if (!segments[i].Equals(rootName, comparison))
+            {
+                continue;
+            }
+
+            var rest = segments[(i + 1)..];
+            if (File.Exists(Path.Combine([Root, .. rest])))
+            {
+                return string.Join('/', rest);
+            }
+        }
+
+        return null;
     }
 
     private static bool IsRootedAnywhere(string path) =>

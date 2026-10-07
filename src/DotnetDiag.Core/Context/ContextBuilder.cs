@@ -264,8 +264,7 @@ public sealed class ContextBuilder(ContextBuilderOptions? options = null)
             return true;
         }
 
-        var resolved = workspace.Resolve(file);
-        return resolved is not null && !Path.GetRelativePath(workspace.Root, resolved).StartsWith("..", StringComparison.Ordinal);
+        return workspace.Contains(file);
     }
 
     private static string? BuildPackageSection(ParsedLog log, GitWorkspace? workspace)

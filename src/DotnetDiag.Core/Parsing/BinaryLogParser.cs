@@ -34,10 +34,23 @@ public static class BinaryLogParser
             AddProject(diagnostic.Project);
         }
 
+        // Own the stream so the file is released as soon as parsing ends. BinLogReader.ReadRecords(string)
+        // leaves the handle open, which keeps the binlog locked on Windows.
+        FileStream stream;
+        try
+        {
+            stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            throw new LogParseException($"'{path}' could not be opened: {ex.Message}", ex);
+        }
+
+        using var _ = stream;
         IEnumerable<Record> records;
         try
         {
-            records = new BinLogReader().ReadRecords(path);
+            records = new BinLogReader().ReadRecords(stream);
         }
         catch (Exception ex) when (ex is not OutOfMemoryException)
         {

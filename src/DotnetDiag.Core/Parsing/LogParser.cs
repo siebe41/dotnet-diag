@@ -19,7 +19,7 @@ public static class LogParser
             return BinaryLogParser.Parse(path);
         }
 
-        return ParseText(File.ReadAllText(path), Path.GetFileName(path));
+        return ParseText(TextDecoding.ReadFile(path), Path.GetFileName(path));
     }
 
     public static ParsedLog ParseText(string text, string sourceName = "stdin")

@@ -55,8 +55,11 @@ internal static partial class Patterns
     [GeneratedRegex(@"^\s*(?:Build succeeded\.?|Build succeeded in|Build succeeded with)", RegexOptions.IgnoreCase)]
     public static partial Regex BuildSucceeded();
 
-    /// <summary>Single-quoted identifiers in compiler messages: <c>'Newtonsoft'</c>.</summary>
-    [GeneratedRegex(@"'(?<name>[^']+)'")]
+    /// <summary>
+    /// Quoted identifiers in compiler messages: <c>'Newtonsoft'</c> in English, <c>"Newtonsoft"</c> in German,
+    /// <c>« Newtonsoft »</c> in French, <c>„Newtonsoft“</c> and similar in other localized SDKs.
+    /// </summary>
+    [GeneratedRegex(@"['""„“«‚‘]\s?(?<name>[^'""„“”«»‚‘’\s][^'""„“”«»‚‘’]*?)\s?['""“”»‘’]")]
     public static partial Regex QuotedName();
 
     /// <summary>Double-quoted identifiers in MSBuild messages: <c>"System.Text.Json"</c>.</summary>

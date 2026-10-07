@@ -9,6 +9,8 @@ public static class JsonReportWriter
     private static readonly JsonSerializerOptions Options = new()
     {
         WriteIndented = true,
+        // Keep test names, paths and localized messages readable (stdout, not HTML).
+        Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
         Converters = { new JsonStringEnumConverter(JsonNamingPolicy.CamelCase) },
