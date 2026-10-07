@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>DotnetDiag.Cli</RootNamespace>
+    <AssemblyName>dotnet-diag</AssemblyName>
+
+    <!-- .NET global tool packaging -->
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>dotnet-diag</ToolCommandName>
+    <!-- "dotnet-diag" is already taken on nuget.org; the command name is still dotnet-diag. -->
+    <PackageId>DotnetDiag.Tool</PackageId>
+    <PackageOutputPath>$(MSBuildThisFileDirectory)..\..\artifacts\nupkg</PackageOutputPath>
+    <Description>Diagnose failing .NET builds and tests: parses MSBuild binary/text logs and dotnet test output, then explains root causes with local heuristics or an LLM (Ollama, Anthropic, OpenAI-compatible).</Description>
+    <PackageTags>dotnet;msbuild;binlog;diagnostics;build;test;ai;llm;cli;tool</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.CommandLine" />
+    <PackageReference Include="Spectre.Console" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DotnetDiag.Core\DotnetDiag.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="DotnetDiag.Tests" />
+  </ItemGroup>
+
+</Project>

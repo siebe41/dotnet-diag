@@ -1,0 +1,13 @@
+Calculator.Tests net9.0 test (1.2s)
+failed Calculator.Tests.MathEngineTests.Divide_ByTwo_ReturnsHalf (8ms)
+  Assert.Equal() Failure: Values differ
+  Expected: 2.5
+  Actual:   2
+    at Calculator.Tests.MathEngineTests.Divide_ByTwo_ReturnsHalf() in /src/calc/tests/Calculator.Tests/MathEngineTests.cs:21
+
+Test run summary: Failed! - /src/calc/tests/Calculator.Tests/bin/Debug/net9.0/Calculator.Tests.dll (net9.0|x64)
+  total: 28
+  failed: 1
+  succeeded: 26
+  skipped: 1
+  duration: 412ms

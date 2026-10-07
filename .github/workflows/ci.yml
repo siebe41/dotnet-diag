@@ -1,0 +1,67 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+jobs:
+  build:
+    name: Build & test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --no-restore -c Release -bl:artifacts/logs/build.binlog
+
+      - name: Test
+        shell: bash
+        run: dotnet test --no-build -c Release 2>&1 | tee artifacts/logs/test-output.txt; exit ${PIPESTATUS[0]}
+
+      - name: Pack global tool
+        run: dotnet pack src/DotnetDiag.Cli --no-build -c Release
+
+      # Dogfooding: explain our own failures with the tool we just built.
+      - name: Diagnose failure with dotnet-diag
+        if: failure()
+        shell: bash
+        run: |
+          log=artifacts/logs/test-output.txt
+          [ -s "$log" ] || log=artifacts/logs/build.binlog
+          dotnet run --project src/DotnetDiag.Cli -c Release -- analyze "$log" --format markdown >> "$GITHUB_STEP_SUMMARY" || true
+          dotnet run --project src/DotnetDiag.Cli -c Release -- analyze "$log" || true
+
+      - name: Upload package
+        if: matrix.os == 'ubuntu-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: nupkg
+          path: artifacts/nupkg/*.nupkg
+
+      - name: Upload logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: logs-${{ matrix.os }}
+          path: artifacts/logs/

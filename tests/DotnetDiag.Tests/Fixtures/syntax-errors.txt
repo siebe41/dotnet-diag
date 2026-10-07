@@ -1,0 +1,7 @@
+Restore complete (0.4s)
+  Calculator failed with 3 error(s) (0.9s)
+    /src/calc/src/Calculator/MathEngine.cs(12,35): error CS1002: ; expected
+    /src/calc/src/Calculator/MathEngine.cs(27,6): error CS1513: } expected
+    /src/calc/src/Calculator/Parser.cs(8,41): error CS1026: ) expected
+
+Build failed with 3 error(s) in 1.6s

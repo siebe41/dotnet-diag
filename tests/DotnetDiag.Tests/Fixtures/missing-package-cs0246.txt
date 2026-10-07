@@ -1,0 +1,22 @@
+MSBuild version 17.12.6+db5f6012c for .NET
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+/home/runner/work/shop/shop/src/Shop.Api/Services/OrderSerializer.cs(3,7): error CS0246: The type or namespace name 'Newtonsoft' could not be found (are you missing a using directive or an assembly reference?) [/home/runner/work/shop/shop/src/Shop.Api/Shop.Api.csproj]
+/home/runner/work/shop/shop/src/Shop.Api/Services/OrderSerializer.cs(14,20): error CS0103: The name 'JsonConvert' does not exist in the current context [/home/runner/work/shop/shop/src/Shop.Api/Shop.Api.csproj]
+/home/runner/work/shop/shop/src/Shop.Api/Services/OrderSerializer.cs(20,16): error CS0103: The name 'JsonConvert' does not exist in the current context [/home/runner/work/shop/shop/src/Shop.Api/Shop.Api.csproj]
+/home/runner/work/shop/shop/src/Shop.Api/Program.cs(8,18): error CS1061: 'IServiceCollection' does not contain a definition for 'AddDbContext' and no accessible extension method 'AddDbContext' accepting a first argument of type 'IServiceCollection' could be found (are you missing a using directive or an assembly reference?) [/home/runner/work/shop/shop/src/Shop.Api/Shop.Api.csproj]
+/home/runner/work/shop/shop/src/Shop.Api/Models/Order.cs(5,19): warning CS8618: Non-nullable property 'Customer' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [/home/runner/work/shop/shop/src/Shop.Api/Shop.Api.csproj]
+CSC : error CS0006: Metadata file '/home/runner/work/shop/shop/src/Shop.Api/bin/Debug/net9.0/Shop.Api.dll' could not be found [/home/runner/work/shop/shop/tests/Shop.Api.Tests/Shop.Api.Tests.csproj]
+
+Build FAILED.
+
+/home/runner/work/shop/shop/src/Shop.Api/Models/Order.cs(5,19): warning CS8618: Non-nullable property 'Customer' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [/home/runner/work/shop/shop/src/Shop.Api/Shop.Api.csproj]
+/home/runner/work/shop/shop/src/Shop.Api/Services/OrderSerializer.cs(3,7): error CS0246: The type or namespace name 'Newtonsoft' could not be found (are you missing a using directive or an assembly reference?) [/home/runner/work/shop/shop/src/Shop.Api/Shop.Api.csproj]
+/home/runner/work/shop/shop/src/Shop.Api/Services/OrderSerializer.cs(14,20): error CS0103: The name 'JsonConvert' does not exist in the current context [/home/runner/work/shop/shop/src/Shop.Api/Shop.Api.csproj]
+/home/runner/work/shop/shop/src/Shop.Api/Services/OrderSerializer.cs(20,16): error CS0103: The name 'JsonConvert' does not exist in the current context [/home/runner/work/shop/shop/src/Shop.Api/Shop.Api.csproj]
+/home/runner/work/shop/shop/src/Shop.Api/Program.cs(8,18): error CS1061: 'IServiceCollection' does not contain a definition for 'AddDbContext' and no accessible extension method 'AddDbContext' accepting a first argument of type 'IServiceCollection' could be found (are you missing a using directive or an assembly reference?) [/home/runner/work/shop/shop/src/Shop.Api/Shop.Api.csproj]
+CSC : error CS0006: Metadata file '/home/runner/work/shop/shop/src/Shop.Api/bin/Debug/net9.0/Shop.Api.dll' could not be found [/home/runner/work/shop/shop/tests/Shop.Api.Tests/Shop.Api.Tests.csproj]
+    1 Warning(s)
+    5 Error(s)
+
+Time Elapsed 00:00:04.12

@@ -1,0 +1,42 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  Calculator -> /src/calc/src/Calculator/bin/Debug/net9.0/Calculator.dll
+  Calculator.Tests -> /src/calc/tests/Calculator.Tests/bin/Debug/net9.0/Calculator.Tests.dll
+Test run for /src/calc/tests/Calculator.Tests/bin/Debug/net9.0/Calculator.Tests.dll (.NETCoreApp,Version=v9.0)
+VSTest version 17.12.0 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.42]     Calculator.Tests.MathEngineTests.Divide_ByTwo_ReturnsHalf [FAIL]
+[xUnit.net 00:00:00.43]       Assert.Equal() Failure: Values differ
+[xUnit.net 00:00:00.43]       Expected: 2.5
+[xUnit.net 00:00:00.43]       Actual:   2
+  Failed Calculator.Tests.MathEngineTests.Divide_ByTwo_ReturnsHalf [8 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: 2.5
+Actual:   2
+  Stack Trace:
+     at Calculator.Tests.MathEngineTests.Divide_ByTwo_ReturnsHalf() in /src/calc/tests/Calculator.Tests/MathEngineTests.cs:line 21
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed Calculator.Tests.HistoryTests.Undo_AfterClear_RestoresLastValue [3 ms]
+  Error Message:
+   System.NullReferenceException : Object reference not set to an instance of an object.
+  Stack Trace:
+     at Calculator.History.Undo() in /src/calc/src/Calculator/History.cs:line 34
+   at Calculator.Tests.HistoryTests.Undo_AfterClear_RestoresLastValue() in /src/calc/tests/Calculator.Tests/HistoryTests.cs:line 18
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+  Failed Calculator.Tests.ParserTests.Parse_Expression(input: "1 + 2", expected: 3) [< 1 ms]
+  Error Message:
+   System.InvalidOperationException : Unexpected token '+' at position 2
+  Stack Trace:
+     at Calculator.Parser.ParseTerm() in /src/calc/src/Calculator/Parser.cs:line 51
+   at Calculator.Parser.Parse(String input) in /src/calc/src/Calculator/Parser.cs:line 17
+   at Calculator.Tests.ParserTests.Parse_Expression(String input, Int32 expected) in /src/calc/tests/Calculator.Tests/ParserTests.cs:line 12
+  Standard Output Messages:
+ Parsing: 1 + 2
+
+  Passed Calculator.Tests.MathEngineTests.Add_ReturnsSum [1 ms]
+
+Failed!  - Failed:     3, Passed:    24, Skipped:     1, Total:    28, Duration: 61 ms - Calculator.Tests.dll (net9.0)
