@@ -1,0 +1,196 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:DotnetDiag.Gui.ViewModels"
+             xmlns:c="using:DotnetDiag.Gui.Controls"
+             x:Class="DotnetDiag.Gui.Views.SettingsView"
+             x:DataType="vm:SettingsViewModel">
+
+  <ScrollViewer>
+    <StackPanel Margin="20,16,20,28" Spacing="{DynamicResource DiagSpacing}" MaxWidth="1040" HorizontalAlignment="Left">
+
+      <StackPanel Spacing="6">
+        <TextBlock Classes="h2" Text="Settings" />
+        <TextBlock Classes="muted" TextWrapping="Wrap"
+                   Text="Appearance and defaults are saved as you change them. The AI provider is saved separately because the command-line tool reads the same file." />
+      </StackPanel>
+
+      <!-- Appearance -->
+      <Border Classes="card">
+        <StackPanel Spacing="16">
+          <TextBlock Classes="h3" Text="Appearance" />
+
+          <StackPanel Spacing="8">
+            <TextBlock Classes="label" Text="THEME" />
+            <ListBox Classes="themes" ItemsSource="{Binding Themes}" SelectedItem="{Binding SelectedTheme}" SelectionMode="AlwaysSelected">
+              <ListBox.ItemsPanel>
+                <ItemsPanelTemplate>
+                  <WrapPanel />
+                </ItemsPanelTemplate>
+              </ListBox.ItemsPanel>
+              <ListBox.ItemTemplate>
+                <DataTemplate x:DataType="vm:ThemeChoice">
+                  <StackPanel Width="164" Spacing="7" ToolTip.Tip="{Binding Description}">
+                    <!-- A miniature of the app in this theme: window, card, the accent pair, status dots and text. -->
+                    <Border Height="86" CornerRadius="6" Padding="10" BorderThickness="1"
+                            Background="{Binding Background}" BorderBrush="{Binding Border}">
+                      <Border CornerRadius="4" Padding="9,8" BorderThickness="1"
+                              Background="{Binding Surface}" BorderBrush="{Binding Border}">
+                        <StackPanel Spacing="7">
+                          <StackPanel Orientation="Horizontal" Spacing="5">
+                            <Border Width="36" Height="8" CornerRadius="4" Background="{Binding Accent}" />
+                            <Border Width="20" Height="8" CornerRadius="4" Background="{Binding Secondary}" />
+                            <Border Width="8" Height="8" CornerRadius="4" Background="{Binding Error}" />
+                            <Border Width="8" Height="8" CornerRadius="4" Background="{Binding Success}" />
+                          </StackPanel>
+                          <TextBlock Text="Aa 123" FontWeight="SemiBold" FontSize="13" Foreground="{Binding Text}" />
+                          <Border Width="92" Height="4" CornerRadius="2" HorizontalAlignment="Left" Background="{Binding TextMuted}" />
+                        </StackPanel>
+                      </Border>
+                    </Border>
+                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" />
+                  </StackPanel>
+                </DataTemplate>
+              </ListBox.ItemTemplate>
+            </ListBox>
+          </StackPanel>
+
+          <WrapPanel>
+            <StackPanel Spacing="4" Margin="0,0,36,8" Width="340">
+              <DockPanel>
+                <TextBlock DockPanel.Dock="Right" Classes="mono small" Text="{Binding TextScaleLabel}" />
+                <TextBlock Classes="label" Text="TEXT SIZE" />
+              </DockPanel>
+              <Slider Minimum="{Binding MinTextScale}" Maximum="{Binding MaxTextScale}" Value="{Binding TextScale}"
+                      TickFrequency="0.05" IsSnapToTickEnabled="True" />
+            </StackPanel>
+            <StackPanel Spacing="4" Margin="0,0,0,8">
+              <TextBlock Classes="label" Text="DENSITY" />
+              <CheckBox IsChecked="{Binding CompactDensity}" Content="Compact rows and cards" />
+            </StackPanel>
+          </WrapPanel>
+        </StackPanel>
+      </Border>
+
+      <!-- Analysis defaults -->
+      <Border Classes="card">
+        <StackPanel Spacing="16">
+          <StackPanel Spacing="4">
+            <TextBlock Classes="h3" Text="Analysis defaults" />
+            <TextBlock Classes="muted" TextWrapping="Wrap"
+                       Text="Starting values for new analyses. Run options on the Analyze page override them for a single run." />
+          </StackPanel>
+
+          <WrapPanel ItemWidth="252">
+            <StackPanel Spacing="4" Margin="0,0,12,12" ToolTip.Tip="How much of a log may be sent to a model (--max-context-tokens)">
+              <TextBlock Classes="label" Text="TOKEN BUDGET" />
+              <NumericUpDown Value="{Binding TokenBudget}" Minimum="{Binding MinTokenBudget}" Maximum="{Binding MaxTokenBudget}"
+                             Increment="250" FormatString="0" />
+            </StackPanel>
+            <StackPanel Spacing="4" Margin="0,0,12,12" ToolTip.Tip="How many source excerpts are added to the model context">
+              <TextBlock Classes="label" Text="SOURCE SNIPPETS" />
+              <NumericUpDown Value="{Binding MaxSnippets}" Minimum="0" Maximum="10" FormatString="0" />
+            </StackPanel>
+            <StackPanel Spacing="4" Margin="0,0,12,12" ToolTip.Tip="Lines shown above and below each error location">
+              <TextBlock Classes="label" Text="LINES AROUND AN ERROR" />
+              <NumericUpDown Value="{Binding SnippetRadius}" Minimum="0" Maximum="10" FormatString="0" />
+            </StackPanel>
+            <StackPanel Spacing="4" Margin="0,0,12,12" ToolTip.Tip="Stack frames kept for each failing test">
+              <TextBlock Classes="label" Text="FRAMES PER FAILING TEST" />
+              <NumericUpDown Value="{Binding MaxFramesPerTest}" Minimum="1" Maximum="10" FormatString="0" />
+            </StackPanel>
+          </WrapPanel>
+
+          <StackPanel Spacing="4" MaxWidth="640" HorizontalAlignment="Left"
+                      ToolTip.Tip="Used when a log is not inside a git repository itself, e.g. one downloaded from CI">
+            <TextBlock Classes="label" Text="DEFAULT REPOSITORY" />
+            <DockPanel Width="640">
+              <Button DockPanel.Dock="Right" Margin="6,0,0,0" Command="{Binding BrowseDefaultRepositoryCommand}" Content="Browse…" />
+              <TextBox Text="{Binding DefaultRepository}" PlaceholderText="None: use the repository around each log" />
+            </DockPanel>
+          </StackPanel>
+
+          <StackPanel Spacing="8">
+            <CheckBox IsChecked="{Binding AutoAnalyze}" Content="Analyze as soon as a log is opened, dropped or pasted" />
+            <CheckBox IsChecked="{Binding ShowWarnings}" Content="List warnings in reports" />
+            <CheckBox IsChecked="{Binding AlwaysOffline}" Content="Start offline: never call a model unless I choose one for a run" />
+            <CheckBox IsChecked="{Binding ExitCodeGate}" Content="CI gate on by default (report exit code 1 on problems)" />
+            <StackPanel Orientation="Horizontal" Spacing="14">
+              <CheckBox IsChecked="{Binding RememberRecent}" Content="Remember recently opened logs" />
+              <Button Classes="ghost small" Command="{Binding ClearRecentCommand}" Content="Clear list" VerticalAlignment="Center" />
+            </StackPanel>
+          </StackPanel>
+
+          <DockPanel>
+            <Button DockPanel.Dock="Right" Command="{Binding ResetPreferencesCommand}" Content="Reset appearance and defaults"
+                    ToolTip.Tip="The AI provider configuration is not touched" />
+            <StackPanel Spacing="2" VerticalAlignment="Center">
+              <SelectableTextBlock Classes="mono small muted" Text="{Binding SettingsPath}" TextWrapping="Wrap" />
+              <TextBlock Classes="small" Text="{Binding PreferencesStatus}" TextWrapping="Wrap" c:Paint.Text="Warning"
+                         IsVisible="{Binding PreferencesStatus, Converter={x:Static ObjectConverters.IsNotNull}}" />
+            </StackPanel>
+          </DockPanel>
+        </StackPanel>
+      </Border>
+
+      <!-- AI provider (config.json shared with the CLI) -->
+      <Border Classes="card">
+        <StackPanel Spacing="16">
+          <StackPanel Spacing="4">
+            <TextBlock Classes="h3" Text="AI provider" />
+            <TextBlock Classes="muted" TextWrapping="Wrap"
+                       Text="Optional. Without a provider every analysis uses the built-in offline hints and nothing leaves this machine. These values are shared with the dotnet-diag command; environment variables and run options still override them (see Doctor)." />
+          </StackPanel>
+
+          <WrapPanel ItemWidth="252">
+            <StackPanel Spacing="4" Margin="0,0,12,12">
+              <TextBlock Classes="label" Text="PROVIDER" />
+              <ComboBox ItemsSource="{Binding ProviderChoices}" SelectedItem="{Binding ConfigProvider}" HorizontalAlignment="Stretch" />
+            </StackPanel>
+            <StackPanel Spacing="4" Margin="0,0,12,12">
+              <TextBlock Classes="label" Text="MODEL" />
+              <TextBox Text="{Binding ConfigModel}" PlaceholderText="Provider default" />
+            </StackPanel>
+            <StackPanel Spacing="4" Margin="0,0,12,12">
+              <TextBlock Classes="label" Text="ENDPOINT" />
+              <TextBox Text="{Binding ConfigEndpoint}" PlaceholderText="http://localhost:11434" />
+            </StackPanel>
+            <StackPanel Spacing="4" Margin="0,0,12,12">
+              <TextBlock Classes="label" Text="EFFORT (ANTHROPIC)" />
+              <ComboBox ItemsSource="{Binding EffortChoices}" SelectedItem="{Binding ConfigEffort}" HorizontalAlignment="Stretch" />
+            </StackPanel>
+            <StackPanel Spacing="4" Margin="0,0,12,12">
+              <TextBlock Classes="label" Text="TIMEOUT (S)" />
+              <!-- No tighter range than "positive": the box must show whatever the file holds without rewriting it. -->
+              <NumericUpDown Value="{Binding ConfigTimeout}" Minimum="1" Maximum="2000000000" Increment="30" FormatString="0" PlaceholderText="180" />
+            </StackPanel>
+            <StackPanel Spacing="4" Margin="0,0,12,12">
+              <TextBlock Classes="label" Text="MAX OUTPUT TOKENS" />
+              <NumericUpDown Value="{Binding ConfigMaxOutputTokens}" Minimum="1" Maximum="2000000000" Increment="256" FormatString="0"
+                             PlaceholderText="Provider default" />
+            </StackPanel>
+          </WrapPanel>
+
+          <StackPanel Spacing="4" MaxWidth="640" HorizontalAlignment="Left">
+            <TextBlock Classes="label" Text="API KEY" />
+            <TextBox Width="640" Text="{Binding ConfigApiKey}" PasswordChar="•" PlaceholderText="Leave empty to use ANTHROPIC_API_KEY / OPENAI_API_KEY" />
+            <TextBlock Classes="small muted" TextWrapping="Wrap"
+                       Text="A key saved here is stored as plain text in the config file. An environment variable keeps it out of files." />
+          </StackPanel>
+
+          <DockPanel>
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center" Margin="16,0,0,0">
+              <Button Classes="ghost" Command="{Binding OpenConfigFolderCommand}" Content="Open folder" />
+              <Button Command="{Binding RevertProviderConfigCommand}" IsEnabled="{Binding IsProviderDirty}" Content="Revert" />
+              <Button Classes="primary" Command="{Binding SaveProviderConfigCommand}" IsEnabled="{Binding IsProviderDirty}" Content="Save" />
+            </StackPanel>
+            <StackPanel Spacing="2" VerticalAlignment="Center">
+              <SelectableTextBlock Classes="mono small muted" Text="{Binding ConfigPath}" TextWrapping="Wrap" />
+              <TextBlock Classes="small" Text="{Binding ProviderStatus}" TextWrapping="Wrap" c:Paint.Text="{Binding ProviderStatusTone}"
+                         IsVisible="{Binding ProviderStatus, Converter={x:Static ObjectConverters.IsNotNull}}" />
+            </StackPanel>
+          </DockPanel>
+        </StackPanel>
+      </Border>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

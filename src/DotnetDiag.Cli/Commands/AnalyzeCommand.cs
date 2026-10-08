@@ -76,9 +76,9 @@ internal static class AnalyzeCommand
             ConsoleSetup.Configure(errorConsole);
 
             var budget = parseResult.GetValue(maxContextTokens);
-            if (budget is < 200 or > 100_000)
+            if (budget is < ContextBuilderOptions.MinTokenBudget or > ContextBuilderOptions.MaxTokenBudget)
             {
-                errorConsole.MarkupLine("[red]error:[/] --max-context-tokens must be between 200 and 100000.");
+                errorConsole.MarkupLine($"[red]error:[/] --max-context-tokens must be between {ContextBuilderOptions.MinTokenBudget} and {ContextBuilderOptions.MaxTokenBudget}.");
                 return ExitCodes.InvalidInput;
             }
 
@@ -190,10 +190,10 @@ internal static class AnalyzeCommand
         if (Directory.Exists(input))
         {
             // A directory: use the most recent binary log in it (dotnet build -bl writes msbuild.binlog).
-            var latest = new DirectoryInfo(input).GetFiles("*.binlog").OrderByDescending(f => f.LastWriteTimeUtc).FirstOrDefault();
+            var latest = LogParser.FindLatestBinaryLog(input);
             return latest is null
                 ? new InputSource(input, null, null, $"No .binlog files found in '{input}'.")
-                : new InputSource(latest.Name, latest.FullName, null, null);
+                : new InputSource(Path.GetFileName(latest), latest, null, null);
         }
 
         return File.Exists(input)

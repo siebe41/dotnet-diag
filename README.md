@@ -20,6 +20,7 @@ dotnet test 2>&1 | dotnet-diag analyze
 - [Features](#features)
 - [Installation](#installation)
 - [Usage](#usage)
+- [Desktop app](#desktop-app)
 - [AI providers](#ai-providers)
 - [Using it in CI](#using-it-in-ci)
 - [Sample output](#sample-output)
@@ -40,6 +41,7 @@ dotnet test 2>&1 | dotnet-diag analyze
 - **Keeps the LLM context small.** The diagnostic bundle is limited to a token budget (default **1000 tokens**). Content is added in priority order, and anything that doesn't fit is counted as omitted rather than silently dropped.
 - **Has rich terminal output.** Built on [Spectre.Console](https://spectreconsole.net/): progress spinners, color-coded error-code tables, and rendered Markdown with diff highlighting for AI answers.
 - **Fits into CI.** It can write Markdown for `$GITHUB_STEP_SUMMARY`, write JSON for tooling, and gate a pipeline with `--exit-code`.
+- **Has a desktop app.** The same engine with a themed window for Windows, macOS and Linux. See [Desktop app](#desktop-app).
 
 ## Installation
 
@@ -128,6 +130,54 @@ dotnet-diag explain NU1605
 | `--exit-code` | Exit with `1` when errors or failing tests are found. |
 
 Exit codes: `0` means success, `1` means problems were found (only with `--exit-code`), and `2` means invalid input.
+
+## Desktop app
+
+`dotnet-diag` also has a desktop app for Windows, macOS and Linux. It runs the same engine as the command line and covers everything the command line does.
+
+```bash
+dotnet run --project src/DotnetDiag.Gui                     # start it from a clone
+dotnet run --project src/DotnetDiag.Gui -- msbuild.binlog   # start it on a log
+```
+
+![The desktop app showing a failed build: diagnostics, missing NuGet references, an AI diagnosis with a highlighted diff, and offline checks](docs/images/gui-report-dark.png)
+
+For this screenshot the model response comes from a canned test provider, so it shows the layout, not any particular model's quality.
+
+| Command line | In the app |
+|---|---|
+| `analyze <file>`, `analyze <folder>` | **Analyze**: open a file or a folder, or drop one on the window. |
+| `dotnet test 2>&1 \| dotnet-diag analyze` | **Paste** (`Ctrl+V`) analyzes build or test output from the clipboard. |
+| `--provider`, `--model`, `--endpoint`, `--api-key`, `--effort`, `--timeout`, `--offline`, `--repo`, `--max-context-tokens` | **Run options** on the Analyze page. The equivalent command line is shown next to them and can be copied. |
+| `--warnings` | **Show warnings** in the report, next to a filter box. |
+| `--show-context` | The **Model context** tab shows exactly what was, or would be, sent. |
+| `--format markdown`, `--format json` | The **Markdown** and **JSON** tabs, each with copy and save. |
+| `--exit-code` | **CI gate**. The report footer shows the exit code the command line would return. |
+| `explain <code>`, `explain --list` | **Explain**: the searchable catalog. Every code in a report links to it. |
+| `doctor` | **Doctor**: the resolved settings and where each comes from, plus the environment variables that are set. |
+
+As on the command line, an AI provider is only used when you select one. The status bar always shows which provider the next analysis would use.
+
+### Themes
+
+There are ten themes: Light, Dark, High Contrast, High Contrast Light, Neural, Circuit, Paper, Blueprint, Terminal and Nord. **System**, the default, follows the operating system's light or dark mode and its high-contrast setting. Switch themes at the bottom of the navigation rail or under **Settings**, where you can also change the text size (85% to 160%) and choose a compact layout.
+
+![The theme picker in Settings](docs/images/gui-themes.png)
+
+<p>
+  <img src="docs/images/gui-report-light.png" width="49%" alt="The same report in the Light theme" />
+  <img src="docs/images/gui-report-high-contrast.png" width="49%" alt="The same report in the High Contrast theme" />
+</p>
+
+The tests check every theme against WCAG contrast ratios: at least 7:1 for body text and 4.5:1 for colored text and badges, and at least 7:1 for everything in the two high-contrast themes.
+
+### Settings
+
+- **Appearance and analysis defaults** are saved as you change them, in `gui.json` next to the config file. They cover the theme, text size, token budget, source snippets, default repository, automatic analysis and the list of recent logs.
+- **AI provider** settings are written to the same `config.json` that the command line reads, so the two always agree. Run options override them for a single run, exactly as flags do.
+- An API key typed into Run options is used for that session only. It is never written to disk and never included in the copied command.
+
+Keyboard shortcuts: `Ctrl+O` opens a file, `Ctrl+Shift+O` opens a folder, `Ctrl+V` pastes a log, `F5` analyzes, and `Ctrl+1` to `Ctrl+4` switch pages.
 
 ## AI providers
 
@@ -362,7 +412,9 @@ src/Broken/Program.cs:1
 |---|---|
 | `src/DotnetDiag.Core` | Parsers (`Parsing/`), git working-tree access (`Workspace/`), the offline knowledge base and hint engine (`Hints/`), the token-budgeted context and prompt builders (`Context/`), HTTP providers (`Providers/`), and the Markdown/JSON reports (`Reporting/`). It has no UI dependencies. |
 | `src/DotnetDiag.Cli` | The `System.CommandLine` command tree (`analyze`, `explain`, `doctor`), Spectre.Console rendering, and global-tool packaging. |
+| `src/DotnetDiag.Gui` | The [desktop app](#desktop-app), built with [Avalonia](https://avaloniaui.net/): one page per command (`Views/`, `ViewModels/`), the themes (`Theming/`), and its own preferences (`Settings/`). It calls the same Core pipeline as the CLI. |
 | `tests/DotnetDiag.Tests` | xUnit tests against realistic fixture logs: parser accuracy, hints, the context budget, prompt construction, provider HTTP contracts (with a fake handler), CLI end-to-end, and Windows/macOS/Linux platform behavior. |
+| `tests/DotnetDiag.Gui.Tests` | xUnit tests for the desktop app: theme contrast, settings, each page's view model on the fixture logs, and the real window rendered headlessly in every theme. |
 | `eval/` | Usefulness evaluation: intentionally broken projects that are built for real, diagnosed, and fixed with the tool's own suggestions. Also includes a field-trial mode for grading real logs. See [docs/TESTING.md](docs/TESTING.md). |
 
 ### Known offline codes
@@ -381,6 +433,8 @@ dotnet build
 dotnet test
 dotnet run --project src/DotnetDiag.Cli -- analyze tests/DotnetDiag.Tests/Fixtures/nuget-restore.txt
 dotnet pack src/DotnetDiag.Cli -c Release      # → artifacts/nupkg/DotnetDiag.Tool.<version>.nupkg
+dotnet run --project src/DotnetDiag.Gui        # the desktop app
+dotnet publish src/DotnetDiag.Gui -c Release -r win-x64 --self-contained false -o artifacts/gui   # or linux-x64, osx-arm64, …
 dotnet run --project eval/DotnetDiag.Eval      # usefulness eval: break real projects, diagnose, verify fixes
 ```
 

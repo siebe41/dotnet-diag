@@ -1,5 +1,3 @@
-using System.Text.Json;
-
 namespace DotnetDiag.Core.Providers;
 
 /// <summary>
@@ -27,7 +25,7 @@ public static class ProviderConfiguration
         environment ??= Environment.GetEnvironmentVariable;
         configPath ??= environment("DOTNET_DIAG_CONFIG") is { Length: > 0 } envPath ? envPath : DefaultConfigPath;
 
-        var file = ConfigFile.Load(configPath);
+        var file = UserConfigFile.Load(configPath);
         var origins = new Dictionary<string, string>();
 
         T? Pick<T>(string name, T? flag, string? envName, Func<string, T?>? fromEnv, T? fromFile)
@@ -147,7 +145,7 @@ public static class ProviderConfiguration
     }
 
     /// <summary>Accepts "host:port", "http://host:port" and OLLAMA_HOST-style "0.0.0.0:11434".</summary>
-    internal static Uri? NormalizeEndpoint(string endpoint)
+    public static Uri? NormalizeEndpoint(string endpoint)
     {
         var value = endpoint.Trim().TrimEnd('/');
         if (!value.Contains("://", StringComparison.Ordinal))
@@ -170,33 +168,4 @@ public static class ProviderConfiguration
 
     private static bool IsHost(string? endpoint, string host) =>
         endpoint is not null && Uri.TryCreate(endpoint, UriKind.Absolute, out var uri) && uri.Host.Equals(host, StringComparison.OrdinalIgnoreCase);
-
-    private sealed record ConfigFile(
-        string? Provider,
-        string? Model,
-        string? Endpoint,
-        string? ApiKey,
-        int? TimeoutSeconds,
-        int? MaxOutputTokens,
-        string? Effort)
-    {
-        private static readonly JsonSerializerOptions Options = new()
-        {
-            PropertyNameCaseInsensitive = true,
-            ReadCommentHandling = JsonCommentHandling.Skip,
-            AllowTrailingCommas = true,
-        };
-
-        public static ConfigFile? Load(string path)
-        {
-            try
-            {
-                return File.Exists(path) ? JsonSerializer.Deserialize<ConfigFile>(File.ReadAllText(path), Options) : null;
-            }
-            catch (Exception ex) when (ex is JsonException or IOException or UnauthorizedAccessException)
-            {
-                return null;
-            }
-        }
-    }
 }

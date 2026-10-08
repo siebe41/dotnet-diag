@@ -1,0 +1,405 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:DotnetDiag.Gui.ViewModels"
+             xmlns:c="using:DotnetDiag.Gui.Controls"
+             xmlns:sys="using:System"
+             x:Class="DotnetDiag.Gui.Views.ReportView"
+             x:DataType="vm:ReportViewModel">
+
+  <DockPanel>
+
+    <!-- Summary -->
+    <DockPanel DockPanel.Dock="Top" Margin="20,2,20,10">
+      <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="6" VerticalAlignment="Top" Margin="16,0,0,0">
+        <Button c:Actions.CopyText="{Binding Markdown}" ToolTip.Tip="Copy the report as Markdown, e.g. for a pull request comment">
+          <StackPanel Orientation="Horizontal" Spacing="7">
+            <Path Classes="icon" Data="{StaticResource IconCopy}" />
+            <TextBlock Text="Copy Markdown" />
+          </StackPanel>
+        </Button>
+        <Button Command="{Binding SaveMarkdownCommand}" ToolTip.Tip="Save the report as Markdown (--format markdown)">
+          <StackPanel Orientation="Horizontal" Spacing="7">
+            <Path Classes="icon" Data="{StaticResource IconSave}" />
+            <TextBlock Text=".md" />
+          </StackPanel>
+        </Button>
+        <Button Command="{Binding SaveJsonCommand}" ToolTip.Tip="Save the report as JSON (--format json)">
+          <StackPanel Orientation="Horizontal" Spacing="7">
+            <Path Classes="icon" Data="{StaticResource IconSave}" />
+            <TextBlock Text=".json" />
+          </StackPanel>
+        </Button>
+        <Button Classes="ghost" ToolTip.Tip="Close this report"
+                Command="{Binding $parent[UserControl;1].((vm:AnalyzeViewModel)DataContext).CloseReportCommand}">
+          <Path Classes="icon" Data="{StaticResource IconClose}" />
+        </Button>
+      </StackPanel>
+
+      <StackPanel Spacing="8">
+        <StackPanel Orientation="Horizontal" Spacing="12">
+          <Border Classes="badge" c:Paint.Fill="{Binding BadgeTone}" BorderThickness="0" Padding="10,3">
+            <TextBlock Classes="small" Text="{Binding BadgeText}" FontWeight="Bold" LetterSpacing="0.6"
+                       Foreground="{DynamicResource DiagBackgroundBrush}" />
+          </Border>
+          <SelectableTextBlock Classes="h2" Text="{Binding SourceName}" VerticalAlignment="Center" />
+        </StackPanel>
+        <WrapPanel>
+          <StackPanel Orientation="Horizontal" Spacing="7" Margin="0,0,22,4">
+            <TextBlock Classes="label" Text="INPUT" VerticalAlignment="Center" />
+            <TextBlock Classes="small" Text="{Binding KindName}" VerticalAlignment="Center" />
+          </StackPanel>
+          <StackPanel Orientation="Horizontal" Spacing="7" Margin="0,0,22,4">
+            <TextBlock Classes="label" Text="DIAGNOSTICS" VerticalAlignment="Center" />
+            <TextBlock Classes="small strong" Text="{Binding ErrorCount, StringFormat='{}{0} error(s)'}" c:Paint.Text="Error" VerticalAlignment="Center" />
+            <TextBlock Classes="small strong" Text="{Binding WarningCount, StringFormat='{}{0} warning(s)'}" c:Paint.Text="Warning" VerticalAlignment="Center" />
+          </StackPanel>
+          <StackPanel Orientation="Horizontal" Spacing="7" Margin="0,0,22,4"
+                      IsVisible="{Binding TestsText, Converter={x:Static ObjectConverters.IsNotNull}}">
+            <TextBlock Classes="label" Text="TESTS" VerticalAlignment="Center" />
+            <TextBlock Classes="small" Text="{Binding TestsText}" VerticalAlignment="Center" />
+          </StackPanel>
+          <StackPanel Orientation="Horizontal" Spacing="7" Margin="0,0,22,4"
+                      IsVisible="{Binding WorkspaceText, Converter={x:Static ObjectConverters.IsNotNull}}">
+            <TextBlock Classes="label" Text="WORKSPACE" VerticalAlignment="Center" />
+            <TextBlock Classes="small" Text="{Binding WorkspaceText}" VerticalAlignment="Center" />
+          </StackPanel>
+        </WrapPanel>
+      </StackPanel>
+    </DockPanel>
+
+    <TabControl Margin="20,0,8,0">
+
+      <!-- The pretty report -->
+      <TabItem Header="Report">
+        <ScrollViewer>
+          <StackPanel Margin="0,14,12,22" Spacing="{DynamicResource DiagSpacing}">
+
+            <StackPanel Spacing="8" IsVisible="{Binding HasDiagnostics}">
+              <DockPanel>
+                <CheckBox DockPanel.Dock="Right" IsChecked="{Binding ShowWarnings}" Content="Show warnings" Margin="14,0,0,0" />
+                <TextBox DockPanel.Dock="Right" Width="260" Text="{Binding Filter}" PlaceholderText="Filter by code, file or text" />
+                <TextBlock Classes="label" Text="DIAGNOSTICS" VerticalAlignment="Center" />
+              </DockPanel>
+              <Border Classes="card" Padding="0">
+                <ItemsControl ItemsSource="{Binding Diagnostics}">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="vm:DiagnosticRow">
+                      <Border Classes="row">
+                        <Grid ColumnDefinitions="Auto,104,*,Auto">
+                          <Panel Margin="0,3,12,0" VerticalAlignment="Top">
+                            <Path Classes="icon" Data="{StaticResource IconError}" c:Paint.Stroke="Error" IsVisible="{Binding IsError}" />
+                            <Path Classes="icon" Data="{StaticResource IconWarning}" c:Paint.Stroke="Warning" IsVisible="{Binding !IsError}" />
+                          </Panel>
+                          <Border Grid.Column="1" Classes="badge" c:Paint.Badge="{Binding CategoryTone}" HorizontalAlignment="Left" VerticalAlignment="Top">
+                            <TextBlock Classes="mono strong" Text="{Binding Code}" c:Paint.Text="{Binding CategoryTone}" />
+                          </Border>
+                          <StackPanel Grid.Column="2" Spacing="3">
+                            <SelectableTextBlock Text="{Binding Message}" TextWrapping="Wrap" />
+                            <WrapPanel>
+                              <Button Classes="link small" Margin="0,0,12,0"
+                                      IsVisible="{Binding Location, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                                      Command="{Binding $parent[ItemsControl].((vm:ReportViewModel)DataContext).OpenLocationCommand}"
+                                      CommandParameter="{Binding}"
+                                      ToolTip.Tip="Open the file. When it is not on this machine, the location is copied instead.">
+                                <TextBlock Classes="mono small" Text="{Binding Location}" />
+                              </Button>
+                              <TextBlock Classes="small muted" Text="{Binding Category}" Margin="0,0,12,0" VerticalAlignment="Center" />
+                              <TextBlock Classes="small muted" Text="{Binding Count}" VerticalAlignment="Center" />
+                            </WrapPanel>
+                          </StackPanel>
+                          <Button Grid.Column="3" Classes="ghost small" Content="Explain" VerticalAlignment="Top" Margin="12,0,0,0"
+                                  Command="{Binding $parent[ItemsControl].((vm:ReportViewModel)DataContext).ExplainCommand}"
+                                  CommandParameter="{Binding Code}"
+                                  ToolTip.Tip="What this code means and how to fix it" />
+                        </Grid>
+                      </Border>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </Border>
+              <TextBlock Classes="small muted" Text="{Binding DiagnosticsNote}" TextWrapping="Wrap"
+                         IsVisible="{Binding DiagnosticsNote, Converter={x:Static ObjectConverters.IsNotNull}}" />
+            </StackPanel>
+
+            <StackPanel Spacing="8" IsVisible="{Binding HasTests}">
+              <TextBlock Classes="label" Text="FAILING TESTS" />
+              <Border Classes="card" Padding="0">
+                <ItemsControl ItemsSource="{Binding Tests}">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="vm:TestRow">
+                      <Border Classes="row">
+                        <Grid ColumnDefinitions="Auto,*">
+                          <Path Classes="icon" Data="{StaticResource IconFlask}" c:Paint.Stroke="Error" Margin="0,3,12,0" VerticalAlignment="Top" />
+                          <StackPanel Grid.Column="1" Spacing="4">
+                            <DockPanel>
+                              <TextBlock DockPanel.Dock="Right" Classes="small muted" Text="{Binding Duration}" Margin="12,0,0,0" />
+                              <SelectableTextBlock Classes="strong" Text="{Binding Name}" ToolTip.Tip="{Binding FullName}" TextWrapping="Wrap" />
+                            </DockPanel>
+                            <SelectableTextBlock Text="{Binding Message}" TextWrapping="Wrap" c:Paint.Text="Error" />
+                            <SelectableTextBlock Classes="mono small muted" Text="{Binding Location}" TextWrapping="Wrap"
+                                                 IsVisible="{Binding Location, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+                            <Expander Header="Stack trace" IsVisible="{Binding HasStackTrace}" HorizontalAlignment="Stretch">
+                              <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+                                <SelectableTextBlock Classes="mono small" Text="{Binding StackTrace}" />
+                              </ScrollViewer>
+                            </Expander>
+                          </StackPanel>
+                        </Grid>
+                      </Border>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </Border>
+              <TextBlock Classes="small muted" Text="{Binding TestsNote}"
+                         IsVisible="{Binding TestsNote, Converter={x:Static ObjectConverters.IsNotNull}}" />
+            </StackPanel>
+
+            <StackPanel Spacing="8" IsVisible="{Binding HasMissingPackages}">
+              <TextBlock Classes="label" Text="MISSING NUGET REFERENCES" />
+              <Border Classes="card" Padding="0" c:Paint.Outline="Violet">
+                <ItemsControl ItemsSource="{Binding MissingPackages}">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="vm:PackageRow">
+                      <Border Classes="row">
+                        <Grid ColumnDefinitions="Auto,*,Auto">
+                          <Path Classes="icon" Data="{StaticResource IconPackage}" c:Paint.Stroke="Violet" Margin="0,3,12,0" VerticalAlignment="Top" />
+                          <StackPanel Grid.Column="1" Spacing="4">
+                            <WrapPanel>
+                              <SelectableTextBlock Classes="strong" Text="{Binding Package}" c:Paint.Text="Violet" Margin="0,0,10,0" />
+                              <TextBlock Classes="small muted" Text="{Binding Version}" Margin="0,0,10,0" VerticalAlignment="Center" />
+                              <TextBlock Classes="small muted" Text="{Binding Reason}" VerticalAlignment="Center" />
+                            </WrapPanel>
+                            <SelectableTextBlock Classes="mono" Text="{Binding Command}" c:Paint.Text="Secondary" TextWrapping="Wrap" />
+                          </StackPanel>
+                          <Button Grid.Column="2" Classes="ghost small" Margin="12,0,0,0" VerticalAlignment="Center"
+                                  c:Actions.CopyText="{Binding Command}" ToolTip.Tip="Copy the suggested fix">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                              <Path Classes="icon" Data="{StaticResource IconCopy}" Width="13" Height="13" />
+                              <TextBlock Text="Copy" />
+                            </StackPanel>
+                          </Button>
+                        </Grid>
+                      </Border>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </Border>
+            </StackPanel>
+
+            <StackPanel Spacing="8" IsVisible="{Binding HasVersionConflicts}">
+              <TextBlock Classes="label" Text="VERSION CONFLICTS" />
+              <Border Classes="card" Padding="0" c:Paint.Outline="Secondary">
+                <ItemsControl ItemsSource="{Binding VersionConflicts}">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="vm:ConflictRow">
+                      <Border Classes="row">
+                        <Grid ColumnDefinitions="*,Auto">
+                          <StackPanel Spacing="5">
+                            <WrapPanel>
+                              <SelectableTextBlock Classes="strong" Text="{Binding Name}" c:Paint.Text="Secondary" Margin="0,0,10,0" VerticalAlignment="Center" />
+                              <Border Classes="badge" c:Paint.Badge="{Binding CodeTone}" Margin="0,0,10,0">
+                                <TextBlock Classes="mono small strong" Text="{Binding Code}" c:Paint.Text="{Binding CodeTone}" />
+                              </Border>
+                              <ItemsControl ItemsSource="{Binding Versions}" VerticalAlignment="Center">
+                                <ItemsControl.ItemsPanel>
+                                  <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Horizontal" Spacing="6" />
+                                  </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                  <DataTemplate x:DataType="vm:VersionChip">
+                                    <Border Classes="badge" c:Paint.Badge="{Binding Tone}">
+                                      <TextBlock Classes="mono small" Text="{Binding Version}" c:Paint.Text="{Binding Tone}" />
+                                    </Border>
+                                  </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                              </ItemsControl>
+                            </WrapPanel>
+                            <SelectableTextBlock Classes="mono" Text="{Binding Command}" c:Paint.Text="Secondary" TextWrapping="Wrap" />
+                          </StackPanel>
+                          <Button Grid.Column="1" Classes="ghost small" Margin="12,0,0,0" VerticalAlignment="Center"
+                                  c:Actions.CopyText="{Binding Command}" ToolTip.Tip="Copy the suggested fix">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                              <Path Classes="icon" Data="{StaticResource IconCopy}" Width="13" Height="13" />
+                              <TextBlock Text="Copy" />
+                            </StackPanel>
+                          </Button>
+                        </Grid>
+                      </Border>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </Border>
+            </StackPanel>
+
+            <!-- AI diagnosis -->
+            <Border Classes="card" c:Paint.Outline="Violet" IsVisible="{Binding HasAi}">
+              <StackPanel Spacing="12">
+                <StackPanel Orientation="Horizontal" Spacing="9">
+                  <Path Classes="icon" Data="{StaticResource IconSpark}" c:Paint.Stroke="Violet" />
+                  <TextBlock Classes="strong" Text="{Binding AiTitle}" c:Paint.Text="Violet" />
+                </StackPanel>
+                <c:MarkdownView Markdown="{Binding AiMarkdown}" />
+                <TextBlock Classes="small" Text="{Binding AiTruncatedText}" c:Paint.Text="Warning" TextWrapping="Wrap"
+                           IsVisible="{Binding AiTruncatedText, Converter={x:Static ObjectConverters.IsNotNull}}" />
+              </StackPanel>
+            </Border>
+            <Border Classes="badge" c:Paint.Badge="Warning" Padding="12,8"
+                    IsVisible="{Binding AiError, Converter={x:Static ObjectConverters.IsNotNull}}">
+              <DockPanel>
+                <Path DockPanel.Dock="Left" Classes="icon" Data="{StaticResource IconWarning}" c:Paint.Stroke="Warning" Margin="0,2,10,0" VerticalAlignment="Top" />
+                <SelectableTextBlock Text="{Binding AiError}" TextWrapping="Wrap" />
+              </DockPanel>
+            </Border>
+
+            <!-- Offline hints -->
+            <StackPanel Spacing="10" IsVisible="{Binding HasHints}">
+              <TextBlock Classes="label" Text="{Binding HintsTitle}" />
+              <ItemsControl ItemsSource="{Binding Hints}">
+                <ItemsControl.ItemsPanel>
+                  <ItemsPanelTemplate>
+                    <StackPanel Spacing="10" />
+                  </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate x:DataType="vm:HintRow">
+                    <Border Classes="card" Padding="0" ClipToBounds="True">
+                      <Grid ColumnDefinitions="5,*">
+                        <Border c:Paint.Fill="{Binding Severity}" CornerRadius="7,0,0,7" />
+                        <StackPanel Grid.Column="1" Margin="14,12,14,13" Spacing="9">
+                          <DockPanel>
+                            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="2" VerticalAlignment="Top" Margin="12,0,0,0">
+                              <Button Classes="ghost small" Content="Explain"
+                                      Command="{Binding $parent[ItemsControl].((vm:ReportViewModel)DataContext).ExplainCommand}"
+                                      CommandParameter="{Binding Code}" />
+                              <Button Classes="ghost small" c:Actions.OpenUrl="{Binding DocsUrl}" ToolTip.Tip="{Binding DocsUrl}"
+                                      IsVisible="{Binding DocsUrl, Converter={x:Static ObjectConverters.IsNotNull}}">
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                  <TextBlock Text="Docs" />
+                                  <Path Classes="icon" Data="{StaticResource IconExternal}" Width="12" Height="12" />
+                                </StackPanel>
+                              </Button>
+                            </StackPanel>
+                            <WrapPanel>
+                              <Border Classes="badge" c:Paint.Badge="{Binding CategoryTone}" Margin="0,0,10,0">
+                                <TextBlock Classes="mono strong" Text="{Binding Code}" c:Paint.Text="{Binding CategoryTone}" />
+                              </Border>
+                              <TextBlock Classes="strong" Text="{Binding Title}" Margin="0,0,10,0" VerticalAlignment="Center" TextWrapping="Wrap" />
+                              <TextBlock Classes="small muted" Text="{Binding Occurrences}" Margin="0,0,10,0" VerticalAlignment="Center" />
+                              <Border Classes="badge" c:Paint.Badge="Neutral" IsVisible="{Binding IsLikelySymptom}"
+                                      ToolTip.Tip="Probably caused by another error. Fix the others first.">
+                                <TextBlock Classes="small muted" Text="likely a symptom" />
+                              </Border>
+                            </WrapPanel>
+                          </DockPanel>
+                          <SelectableTextBlock c:InlineMarkdown.Text="{Binding Summary}" TextWrapping="Wrap" />
+                          <ItemsControl ItemsSource="{Binding Suggestions}">
+                            <ItemsControl.ItemTemplate>
+                              <DataTemplate x:DataType="sys:String">
+                                <Grid ColumnDefinitions="Auto,*" Margin="0,2">
+                                  <TextBlock Text="→" c:Paint.Text="Success" Margin="0,0,9,0" FontWeight="Bold" />
+                                  <SelectableTextBlock Grid.Column="1" c:InlineMarkdown.Text="{Binding}" TextWrapping="Wrap" />
+                                </Grid>
+                              </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                          </ItemsControl>
+                          <SelectableTextBlock Classes="mono small muted" Text="{Binding Locations, StringFormat='at {0}'}" TextWrapping="Wrap"
+                                               IsVisible="{Binding Locations, Converter={x:Static ObjectConverters.IsNotNull}}" />
+                        </StackPanel>
+                      </Grid>
+                    </Border>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+            </StackPanel>
+
+            <Border Classes="badge" c:Paint.Badge="{Binding NoHintsTone}" Padding="12,8"
+                    IsVisible="{Binding NoHintsText, Converter={x:Static ObjectConverters.IsNotNull}}">
+              <TextBlock Text="{Binding NoHintsText}" TextWrapping="Wrap" />
+            </Border>
+
+            <TextBlock Classes="small muted" Text="{Binding TipText}" TextWrapping="Wrap"
+                       IsVisible="{Binding TipText, Converter={x:Static ObjectConverters.IsNotNull}}" />
+
+            <StackPanel Spacing="4">
+              <Border Classes="divider" />
+              <DockPanel Margin="0,4,0,0">
+                <TextBlock DockPanel.Dock="Right" Classes="mono small muted" Text="{Binding ExitCodeText}" Margin="16,0,0,0"
+                           ToolTip.Tip="What `dotnet-diag analyze` returns for this log" />
+                <TextBlock Classes="mono small muted" Text="{Binding FooterText}" TextWrapping="Wrap" />
+              </DockPanel>
+              <TextBlock Classes="small muted" Text="{Binding SaveStatus}"
+                         IsVisible="{Binding SaveStatus, Converter={x:Static ObjectConverters.IsNotNull}}" />
+            </StackPanel>
+          </StackPanel>
+        </ScrollViewer>
+      </TabItem>
+
+      <!-- What the CLI prints with its show-context flag -->
+      <TabItem Header="Model context">
+        <ScrollViewer>
+          <StackPanel Margin="0,14,12,22" Spacing="12">
+            <TextBlock Text="{Binding ContextNote}" TextWrapping="Wrap" />
+            <DockPanel>
+              <Button DockPanel.Dock="Right" Margin="16,0,0,0" c:Actions.CopyText="{Binding PromptUser}" VerticalAlignment="Center">
+                <StackPanel Orientation="Horizontal" Spacing="7">
+                  <Path Classes="icon" Data="{StaticResource IconCopy}" />
+                  <TextBlock Text="Copy" />
+                </StackPanel>
+              </Button>
+              <StackPanel Spacing="5">
+                <TextBlock Classes="small muted" Text="{Binding ContextSummary}" TextWrapping="Wrap" />
+                <ProgressBar Minimum="0" Maximum="{Binding ContextBudget}" Value="{Binding ContextTokens}" Height="6" MinHeight="6" />
+              </StackPanel>
+            </DockPanel>
+            <TextBlock Classes="label" Text="USER MESSAGE" />
+            <Border Classes="codeblock">
+              <SelectableTextBlock Classes="mono" Text="{Binding PromptUser}" TextWrapping="Wrap" />
+            </Border>
+            <Expander Header="System prompt" HorizontalAlignment="Stretch">
+              <SelectableTextBlock Classes="mono" Text="{Binding PromptSystem}" TextWrapping="Wrap" />
+            </Expander>
+          </StackPanel>
+        </ScrollViewer>
+      </TabItem>
+
+      <!-- The CLI's markdown format -->
+      <TabItem Header="Markdown">
+        <DockPanel Margin="0,14,12,16">
+          <DockPanel DockPanel.Dock="Top" Margin="0,0,0,10">
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="6">
+              <Button c:Actions.CopyText="{Binding Markdown}" Content="Copy" />
+              <Button Command="{Binding SaveMarkdownCommand}" Content="Save…" />
+            </StackPanel>
+            <TextBlock Classes="muted" VerticalAlignment="Center" TextWrapping="Wrap"
+                       Text="The same output as --format markdown, for a CI step summary or a pull request comment." />
+          </DockPanel>
+          <Border Classes="codeblock">
+            <ScrollViewer HorizontalScrollBarVisibility="Auto">
+              <SelectableTextBlock Classes="mono" Text="{Binding Markdown}" />
+            </ScrollViewer>
+          </Border>
+        </DockPanel>
+      </TabItem>
+
+      <!-- The CLI's json format -->
+      <TabItem Header="JSON">
+        <DockPanel Margin="0,14,12,16">
+          <DockPanel DockPanel.Dock="Top" Margin="0,0,0,10">
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="6">
+              <Button c:Actions.CopyText="{Binding Json}" Content="Copy" />
+              <Button Command="{Binding SaveJsonCommand}" Content="Save…" />
+            </StackPanel>
+            <TextBlock Classes="muted" VerticalAlignment="Center" TextWrapping="Wrap"
+                       Text="The same output as --format json, with every diagnostic, for tooling." />
+          </DockPanel>
+          <Border Classes="codeblock">
+            <ScrollViewer HorizontalScrollBarVisibility="Auto">
+              <SelectableTextBlock Classes="mono" Text="{Binding Json}" />
+            </ScrollViewer>
+          </Border>
+        </DockPanel>
+      </TabItem>
+    </TabControl>
+  </DockPanel>
+</UserControl>

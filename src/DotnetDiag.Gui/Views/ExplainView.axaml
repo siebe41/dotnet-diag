@@ -1,0 +1,103 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:DotnetDiag.Gui.ViewModels"
+             xmlns:c="using:DotnetDiag.Gui.Controls"
+             xmlns:sys="using:System"
+             x:Class="DotnetDiag.Gui.Views.ExplainView"
+             x:DataType="vm:ExplainViewModel">
+
+  <Grid ColumnDefinitions="390,*" Margin="20,16,20,16">
+
+    <!-- Catalog -->
+    <DockPanel Margin="0,0,18,0">
+      <StackPanel DockPanel.Dock="Top" Spacing="10" Margin="0,0,0,10">
+        <TextBlock Classes="h2" Text="Explain a code" />
+        <TextBlock Classes="muted" TextWrapping="Wrap"
+                   Text="The offline catalog of common compiler, MSBuild, NuGet and SDK errors. No log or AI needed." />
+        <TextBox Text="{Binding Query}" PlaceholderText="Search a code or words: CS0246, NU1605, downgrade…" />
+        <DockPanel>
+          <TextBlock DockPanel.Dock="Right" Classes="small muted" Text="{Binding CountText}" VerticalAlignment="Center" Margin="12,0,0,0" />
+          <ComboBox ItemsSource="{Binding Categories}" SelectedItem="{Binding Category}" HorizontalAlignment="Stretch" />
+        </DockPanel>
+      </StackPanel>
+      <Border Classes="card" Padding="4">
+        <ListBox Classes="flat" ItemsSource="{Binding Entries}" SelectedItem="{Binding Selected}">
+          <ListBox.ItemTemplate>
+            <DataTemplate x:DataType="vm:KnownErrorRow">
+              <Grid ColumnDefinitions="104,*">
+                <TextBlock Classes="mono strong" Text="{Binding Code}" c:Paint.Text="{Binding Tone}" VerticalAlignment="Center" />
+                <TextBlock Grid.Column="1" Text="{Binding Title}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+              </Grid>
+            </DataTemplate>
+          </ListBox.ItemTemplate>
+        </ListBox>
+      </Border>
+    </DockPanel>
+
+    <!-- Detail -->
+    <ScrollViewer Grid.Column="1">
+      <StackPanel Spacing="{DynamicResource DiagSpacing}" Margin="0,0,10,8">
+
+        <Border Classes="card" c:Paint.Outline="Warning"
+                IsVisible="{Binding UnknownCode, Converter={x:Static ObjectConverters.IsNotNull}}">
+          <StackPanel Spacing="8">
+            <TextBlock Classes="strong" Text="{Binding UnknownText}" TextWrapping="Wrap" />
+            <TextBlock Classes="muted" Text="The official documentation may still cover it:" TextWrapping="Wrap" />
+            <Button Classes="link" c:Actions.OpenUrl="{Binding UnknownDocsUrl}" HorizontalAlignment="Left">
+              <TextBlock Text="{Binding UnknownDocsUrl}" TextWrapping="Wrap" />
+            </Button>
+          </StackPanel>
+        </Border>
+
+        <Border Classes="card" IsVisible="{Binding Selected, Converter={x:Static ObjectConverters.IsNotNull}}">
+          <StackPanel Spacing="16" DataContext="{Binding Selected}" x:DataType="vm:KnownErrorRow">
+            <DockPanel>
+              <Button DockPanel.Dock="Right" c:Actions.CopyText="{Binding CopyText}" VerticalAlignment="Top" Margin="12,0,0,0"
+                      ToolTip.Tip="Copy this explanation as text">
+                <StackPanel Orientation="Horizontal" Spacing="7">
+                  <Path Classes="icon" Data="{StaticResource IconCopy}" />
+                  <TextBlock Text="Copy" />
+                </StackPanel>
+              </Button>
+              <StackPanel Spacing="8">
+                <StackPanel Orientation="Horizontal" Spacing="10">
+                  <Border Classes="badge" c:Paint.Badge="{Binding Tone}">
+                    <TextBlock Classes="mono strong" Text="{Binding Code}" c:Paint.Text="{Binding Tone}" FontSize="{DynamicResource DiagFontSizeMedium}" />
+                  </Border>
+                  <TextBlock Classes="label" Text="{Binding CategoryName}" VerticalAlignment="Center" />
+                </StackPanel>
+                <SelectableTextBlock Classes="h2" Text="{Binding Title}" TextWrapping="Wrap" />
+              </StackPanel>
+            </DockPanel>
+
+            <SelectableTextBlock c:InlineMarkdown.Text="{Binding Explanation}" TextWrapping="Wrap" />
+
+            <StackPanel Spacing="6">
+              <TextBlock Classes="label" Text="FIXES" />
+              <ItemsControl ItemsSource="{Binding Fixes}">
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate x:DataType="sys:String">
+                    <Grid ColumnDefinitions="Auto,*" Margin="0,3">
+                      <TextBlock Text="→" c:Paint.Text="Success" Margin="0,0,9,0" FontWeight="Bold" />
+                      <SelectableTextBlock Grid.Column="1" c:InlineMarkdown.Text="{Binding}" TextWrapping="Wrap" />
+                    </Grid>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+            </StackPanel>
+
+            <StackPanel Spacing="4">
+              <TextBlock Classes="label" Text="DOCUMENTATION" />
+              <Button Classes="link" c:Actions.OpenUrl="{Binding DocsUrl}" HorizontalAlignment="Left">
+                <StackPanel Orientation="Horizontal" Spacing="7">
+                  <TextBlock Text="{Binding DocsUrl}" TextWrapping="Wrap" />
+                  <Path Classes="icon" Data="{StaticResource IconExternal}" Width="12" Height="12" c:Paint.Stroke="Accent" />
+                </StackPanel>
+              </Button>
+            </StackPanel>
+          </StackPanel>
+        </Border>
+      </StackPanel>
+    </ScrollViewer>
+  </Grid>
+</UserControl>

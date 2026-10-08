@@ -105,6 +105,58 @@ public sealed class ProviderConfigurationTests : IDisposable
         Assert.Contains("not a valid endpoint", settings.Problem);
     }
 
+    [Fact]
+    public void Config_file_saves_only_what_is_set_and_resolves_the_same_way_afterwards()
+    {
+        Assert.Null(UserConfigFile.Load(_configPath));
+
+        new UserConfigFile { Provider = "ollama", Model = "qwen2.5-coder:14b", TimeoutSeconds = 45 }.Save(_configPath);
+
+        var text = File.ReadAllText(_configPath);
+        Assert.Contains("\"provider\": \"ollama\"", text);
+        Assert.Contains("\"timeoutSeconds\": 45", text);
+        Assert.DoesNotContain("apiKey", text);
+        Assert.DoesNotContain("null", text);
+
+        var settings = Resolve();
+        Assert.Equal(ProviderKind.Ollama, settings.Kind);
+        Assert.Equal("qwen2.5-coder:14b", settings.Model);
+        Assert.Equal(TimeSpan.FromSeconds(45), settings.Timeout);
+        Assert.Equal("config file", settings.Origins["Timeout"]);
+    }
+
+    [Fact]
+    public void Config_file_keeps_keys_it_does_not_know_when_rewritten()
+    {
+        File.WriteAllText(_configPath, """
+            {
+              // written by a newer version
+              "Provider": "anthropic",
+              "apiKey": "sk-from-file",
+              "futureSetting": { "enabled": true },
+            }
+            """);
+
+        var loaded = UserConfigFile.Load(_configPath)!;
+        Assert.Equal("anthropic", loaded.Provider);
+        (loaded with { Model = "claude-x", ApiKey = null }).Save(_configPath);
+
+        var reloaded = UserConfigFile.Load(_configPath)!;
+        Assert.Equal("claude-x", reloaded.Model);
+        Assert.Null(reloaded.ApiKey);
+        Assert.True(reloaded.Extra!["futureSetting"].GetProperty("enabled").GetBoolean());
+    }
+
+    [Fact]
+    public void Unreadable_config_file_is_ignored()
+    {
+        File.WriteAllText(_configPath, "{ this is not json");
+
+        Assert.Null(UserConfigFile.Load(_configPath));
+        Assert.Equal(ProviderKind.None, Resolve().Kind);
+        Assert.False(Resolve().ConfigFileFound);
+    }
+
     private ProviderSettings Resolve(ProviderOverrides? overrides = null, Dictionary<string, string>? env = null) =>
         ProviderConfiguration.Resolve(overrides, name => env?.GetValueOrDefault(name), _configPath);
 }

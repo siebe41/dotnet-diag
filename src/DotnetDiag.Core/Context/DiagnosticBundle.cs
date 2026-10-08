@@ -18,6 +18,10 @@ public sealed record DiagnosticBundle(
 
 public sealed record ContextBuilderOptions
 {
+    /// <summary>Smallest and largest <see cref="MaxTokens"/> the front ends accept.</summary>
+    public const int MinTokenBudget = 200;
+    public const int MaxTokenBudget = 100_000;
+
     /// <summary>Hard ceiling for <see cref="DiagnosticBundle.EstimatedTokens"/>.</summary>
     public int MaxTokens { get; init; } = 1000;
 
