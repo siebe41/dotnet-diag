@@ -59,7 +59,7 @@ To install from source (for example, before the package is published):
 git clone https://github.com/siebe41/dotnet-diag.git
 cd dotnet-diag
 dotnet pack src/DotnetDiag.Cli -c Release
-dotnet tool install --global DotnetDiag.Tool --add-source ./artifacts/nupkg
+dotnet tool install --global DotnetDiag.Tool --source ./artifacts/nupkg
 ```
 
 To update or remove the tool:
