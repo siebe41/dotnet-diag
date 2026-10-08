@@ -25,6 +25,23 @@ These tests run against realistic fixture logs in `tests/DotnetDiag.Tests/Fixtur
 - **Providers.** Exact HTTP requests and responses for Anthropic, OpenAI-compatible endpoints and Ollama, using a fake handler. This covers retries, refusals, and error messages.
 - **CLI.** Rendering every fixture without Spectre markup errors, exit codes, and the JSON and Markdown formats.
 
+### Desktop app
+
+`dotnet test` also runs `tests/DotnetDiag.Gui.Tests`, which covers the desktop app with the same fixture logs:
+
+- **Themes.** Every theme is held to WCAG contrast ratios for body text, secondary text, colored text on each surface and on its own badge, primary buttons and their hover state, and result badges. A new theme that is hard to read fails the build.
+- **Pages.** The view model of each page runs on the fixtures: opening a file or folder, pasted output, run options, the warnings toggle and filter, the exit-code gate, the Markdown and JSON outputs, the explain catalog, and the doctor table. These tests start offline and clear the provider environment variables, so they never reach a real model.
+- **Settings.** Preferences round-trip and are clamped. Provider settings saved from the app resolve to the same values through the command line's own resolver, and keys the app does not know survive a save.
+- **Rendering.** The real window is driven through Avalonia's headless platform with the real Skia renderer. Every page is rendered in every theme, with large text, and with an AI diagnosis from a canned provider.
+
+To look at what the rendering tests draw, name a folder and they write one PNG per page and theme into it:
+
+```bash
+DOTNET_DIAG_GUI_SCREENSHOTS=artifacts/screenshots dotnet test tests/DotnetDiag.Gui.Tests
+```
+
+The screenshots in the README are produced this way.
+
 ## 2. Platform and process tests
 
 The tests in `tests/DotnetDiag.Tests/Platform/` cover behavior that differs between operating systems. All three CI legs run them:

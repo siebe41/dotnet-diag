@@ -44,6 +44,10 @@ public static class LogParser
         };
     }
 
+    /// <summary>The most recent <c>*.binlog</c> in a folder (<c>dotnet build -bl</c> writes msbuild.binlog), or null.</summary>
+    public static string? FindLatestBinaryLog(string directory) =>
+        new DirectoryInfo(directory).GetFiles("*.binlog").OrderByDescending(f => f.LastWriteTimeUtc).FirstOrDefault()?.FullName;
+
     /// <summary>Binlogs are gzip streams; check the magic bytes rather than trusting the extension.</summary>
     public static bool IsBinaryLog(string path)
     {

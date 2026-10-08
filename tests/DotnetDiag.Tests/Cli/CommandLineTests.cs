@@ -38,6 +38,47 @@ public class CommandLineTests
     }
 
     [Fact]
+    public async Task Analyze_folder_uses_its_newest_binlog()
+    {
+        var folder = Directory.CreateDirectory(Path.Combine(Path.GetTempPath(), "dotnet-diag-tests", Guid.NewGuid().ToString("N"))).FullName;
+        try
+        {
+            var (emptyExit, _, emptyError) = await RunAsync("analyze", folder, "--offline");
+            Assert.Equal(ExitCodes.InvalidInput, emptyExit);
+            Assert.Contains("No .binlog files found", emptyError);
+
+            // The format is detected by content, so text logs named .binlog are enough to show which file is picked.
+            var older = Path.Combine(folder, "older.binlog");
+            var newer = Path.Combine(folder, "newer.binlog");
+            File.Copy(Fixtures.Path("syntax-errors.txt"), older);
+            File.Copy(Fixtures.Path("nuget-restore.txt"), newer);
+            File.SetLastWriteTimeUtc(older, DateTime.UtcNow.AddHours(-2));
+            File.SetLastWriteTimeUtc(newer, DateTime.UtcNow);
+
+            var (exit, stdout, _) = await RunAsync("analyze", folder, "--offline", "--format", "json");
+
+            Assert.Equal(ExitCodes.Success, exit);
+            using var json = JsonDocument.Parse(stdout);
+            Assert.Equal("newer.binlog", json.RootElement.GetProperty("source").GetString());
+        }
+        finally
+        {
+            Directory.Delete(folder, recursive: true);
+        }
+    }
+
+    [Theory]
+    [InlineData("199")]
+    [InlineData("100001")]
+    public async Task Analyze_rejects_a_token_budget_outside_the_supported_range(string budget)
+    {
+        var (exit, _, stderr) = await RunAsync("analyze", Fixtures.Path("syntax-errors.txt"), "--offline", "--max-context-tokens", budget);
+
+        Assert.Equal(ExitCodes.InvalidInput, exit);
+        Assert.Contains("between 200 and 100000", stderr);
+    }
+
+    [Fact]
     public async Task Analyze_rejects_unknown_provider()
     {
         var (exit, _, stderr) = await RunAsync("analyze", Fixtures.Path("syntax-errors.txt"), "--provider", "skynet");

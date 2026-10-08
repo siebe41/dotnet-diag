@@ -1,0 +1,131 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:DotnetDiag.Gui.ViewModels"
+        xmlns:views="using:DotnetDiag.Gui.Views"
+        xmlns:c="using:DotnetDiag.Gui.Controls"
+        x:Class="DotnetDiag.Gui.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Title="dotnet-diag"
+        Icon="/Assets/app.ico"
+        Width="1280" Height="840"
+        MinWidth="860" MinHeight="540"
+        WindowStartupLocation="CenterScreen">
+
+  <Window.KeyBindings>
+    <KeyBinding Gesture="Ctrl+D1" Command="{Binding NavigateCommand}" CommandParameter="0" />
+    <KeyBinding Gesture="Ctrl+D2" Command="{Binding NavigateCommand}" CommandParameter="1" />
+    <KeyBinding Gesture="Ctrl+D3" Command="{Binding NavigateCommand}" CommandParameter="2" />
+    <KeyBinding Gesture="Ctrl+D4" Command="{Binding NavigateCommand}" CommandParameter="3" />
+    <KeyBinding Gesture="Ctrl+OemComma" Command="{Binding NavigateCommand}" CommandParameter="3" />
+    <KeyBinding Gesture="Ctrl+O" Command="{Binding Analyze.BrowseFileCommand}" />
+    <KeyBinding Gesture="Ctrl+Shift+O" Command="{Binding Analyze.BrowseFolderCommand}" />
+    <KeyBinding Gesture="F5" Command="{Binding Analyze.AnalyzeCommand}" />
+  </Window.KeyBindings>
+
+  <Window.DataTemplates>
+    <DataTemplate DataType="vm:AnalyzeViewModel">
+      <views:AnalyzeView />
+    </DataTemplate>
+    <DataTemplate DataType="vm:ExplainViewModel">
+      <views:ExplainView />
+    </DataTemplate>
+    <DataTemplate DataType="vm:DoctorViewModel">
+      <views:DoctorView />
+    </DataTemplate>
+    <DataTemplate DataType="vm:SettingsViewModel">
+      <views:SettingsView />
+    </DataTemplate>
+  </Window.DataTemplates>
+
+  <Grid ColumnDefinitions="248,*" RowDefinitions="*,Auto">
+
+    <!-- Navigation rail -->
+    <Border Background="{DynamicResource DiagSurfaceBrush}"
+            BorderBrush="{DynamicResource DiagBorderBrush}"
+            BorderThickness="0,0,1,0">
+      <DockPanel Margin="12,18,12,14">
+
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="10" Margin="6,0,0,22">
+          <!-- App mark: a small network joined to a circuit trace, in the theme's two brand colors. -->
+          <Canvas Width="30" Height="30" VerticalAlignment="Center">
+            <Line StartPoint="6,9" EndPoint="15,5" Stroke="{DynamicResource DiagAccentBrush}" StrokeThickness="2" />
+            <Line StartPoint="6,9" EndPoint="11,20" Stroke="{DynamicResource DiagAccentBrush}" StrokeThickness="2" />
+            <Line StartPoint="15,5" EndPoint="11,20" Stroke="{DynamicResource DiagAccentBrush}" StrokeThickness="2" />
+            <Ellipse Canvas.Left="2.5" Canvas.Top="5.5" Width="7" Height="7" Fill="{DynamicResource DiagAccentBrush}" />
+            <Ellipse Canvas.Left="11.5" Canvas.Top="1.5" Width="7" Height="7" Fill="{DynamicResource DiagAccentBrush}" />
+            <Ellipse Canvas.Left="7.5" Canvas.Top="16.5" Width="7" Height="7" Fill="{DynamicResource DiagAccentBrush}" />
+            <Polyline Points="11,20 19,26 24,26 24,9" Stroke="{DynamicResource DiagSecondaryBrush}" StrokeThickness="2" StrokeJoin="Round" />
+            <Ellipse Canvas.Left="20.5" Canvas.Top="3.5" Width="7" Height="7" Fill="{DynamicResource DiagSecondaryBrush}" />
+          </Canvas>
+          <StackPanel VerticalAlignment="Center">
+            <TextBlock Text="dotnet-diag" FontWeight="Bold" FontSize="{DynamicResource DiagFontSizeMedium}" />
+            <TextBlock Classes="label" Text="BUILD DOCTOR" />
+          </StackPanel>
+        </StackPanel>
+
+        <StackPanel DockPanel.Dock="Bottom" Spacing="6" Margin="4,0">
+          <TextBlock Classes="label" Text="THEME" />
+          <ComboBox ItemsSource="{Binding Settings.Themes}"
+                    SelectedItem="{Binding Settings.SelectedTheme}"
+                    HorizontalAlignment="Stretch"
+                    ToolTip.Tip="Switch theme. More appearance options are in Settings.">
+            <ComboBox.ItemTemplate>
+              <DataTemplate x:DataType="vm:ThemeChoice">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                  <Border Width="16" Height="16" CornerRadius="8" Background="{Binding Background}"
+                          BorderBrush="{Binding Accent}" BorderThickness="3" VerticalAlignment="Center" />
+                  <TextBlock Text="{Binding Name}" VerticalAlignment="Center" />
+                </StackPanel>
+              </DataTemplate>
+            </ComboBox.ItemTemplate>
+          </ComboBox>
+          <TextBlock Classes="small muted" Text="{Binding Version}" Margin="2,6,0,0" />
+        </StackPanel>
+
+        <ListBox Classes="nav" SelectedIndex="{Binding SelectedPageIndex}" SelectionMode="AlwaysSelected">
+          <ListBoxItem ToolTip.Tip="Diagnose a build or test log (Ctrl+1)">
+            <StackPanel Orientation="Horizontal" Spacing="12">
+              <Path Classes="icon" Data="{StaticResource IconSearch}" />
+              <TextBlock Text="Analyze" />
+            </StackPanel>
+          </ListBoxItem>
+          <ListBoxItem ToolTip.Tip="Look up an error code offline (Ctrl+2)">
+            <StackPanel Orientation="Horizontal" Spacing="12">
+              <Path Classes="icon" Data="{StaticResource IconBook}" />
+              <TextBlock Text="Explain" />
+            </StackPanel>
+          </ListBoxItem>
+          <ListBoxItem ToolTip.Tip="Check the resolved configuration (Ctrl+3)">
+            <StackPanel Orientation="Horizontal" Spacing="12">
+              <Path Classes="icon" Data="{StaticResource IconPulse}" />
+              <TextBlock Text="Doctor" />
+            </StackPanel>
+          </ListBoxItem>
+          <ListBoxItem ToolTip.Tip="Themes, defaults and AI provider (Ctrl+4)">
+            <StackPanel Orientation="Horizontal" Spacing="12">
+              <Path Classes="icon" Data="{StaticResource IconSliders}" />
+              <TextBlock Text="Settings" />
+            </StackPanel>
+          </ListBoxItem>
+        </ListBox>
+      </DockPanel>
+    </Border>
+
+    <ContentControl Grid.Column="1" Content="{Binding CurrentPage}" />
+
+    <!-- Status bar -->
+    <Border Grid.Row="1" Grid.ColumnSpan="2" Padding="16,6"
+            Background="{DynamicResource DiagSurfaceBrush}"
+            BorderBrush="{DynamicResource DiagBorderBrush}"
+            BorderThickness="0,1,0,0">
+      <DockPanel>
+        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="7" Margin="16,0,0,0"
+                    ToolTip.Tip="The AI provider the next analysis will use. See Doctor for where it comes from.">
+          <Path Classes="icon" Data="{StaticResource IconSpark}" Width="13" Height="13" c:Paint.Stroke="{Binding Analyze.ProviderTone}" />
+          <TextBlock Classes="small" Text="{Binding Analyze.ProviderSummary}" c:Paint.Text="{Binding Analyze.ProviderTone}" />
+        </StackPanel>
+        <TextBlock Classes="small muted" Text="{Binding Analyze.StatusText}" TextTrimming="CharacterEllipsis" />
+      </DockPanel>
+    </Border>
+  </Grid>
+</Window>

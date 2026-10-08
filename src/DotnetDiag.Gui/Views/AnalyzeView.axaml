@@ -1,0 +1,235 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:DotnetDiag.Gui.ViewModels"
+             xmlns:views="using:DotnetDiag.Gui.Views"
+             xmlns:c="using:DotnetDiag.Gui.Controls"
+             xmlns:sys="using:System"
+             x:Class="DotnetDiag.Gui.Views.AnalyzeView"
+             x:DataType="vm:AnalyzeViewModel"
+             DragDrop.AllowDrop="True">
+
+  <UserControl.DataTemplates>
+    <DataTemplate DataType="vm:ReportViewModel">
+      <views:ReportView />
+    </DataTemplate>
+  </UserControl.DataTemplates>
+
+  <Panel>
+    <DockPanel>
+
+      <!-- Input bar and run options -->
+      <StackPanel DockPanel.Dock="Top" Margin="20,16,20,10" Spacing="10">
+        <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto">
+          <TextBox Text="{Binding InputPath}"
+                   PlaceholderText="Path to a .binlog, a build or test log, or a folder. You can also drop one anywhere."
+                   VerticalContentAlignment="Center">
+            <TextBox.KeyBindings>
+              <KeyBinding Gesture="Enter" Command="{Binding AnalyzeCommand}" />
+            </TextBox.KeyBindings>
+          </TextBox>
+          <Button Grid.Column="1" Margin="8,0,0,0" Command="{Binding BrowseFileCommand}" ToolTip.Tip="Open a log file (Ctrl+O)">
+            <StackPanel Orientation="Horizontal" Spacing="7">
+              <Path Classes="icon" Data="{StaticResource IconFile}" />
+              <TextBlock Text="File…" />
+            </StackPanel>
+          </Button>
+          <Button Grid.Column="2" Margin="6,0,0,0" Command="{Binding BrowseFolderCommand}"
+                  ToolTip.Tip="Use the newest .binlog in a folder (Ctrl+Shift+O)">
+            <StackPanel Orientation="Horizontal" Spacing="7">
+              <Path Classes="icon" Data="{StaticResource IconFolder}" />
+              <TextBlock Text="Folder…" />
+            </StackPanel>
+          </Button>
+          <Button Grid.Column="3" Margin="6,0,0,0" Command="{Binding PasteCommand}"
+                  ToolTip.Tip="Analyze build or test output from the clipboard (Ctrl+V), like piping into the CLI">
+            <StackPanel Orientation="Horizontal" Spacing="7">
+              <Path Classes="icon" Data="{StaticResource IconPaste}" />
+              <TextBlock Text="Paste" />
+            </StackPanel>
+          </Button>
+          <Panel Grid.Column="4" Margin="10,0,0,0">
+            <Button Classes="primary" Command="{Binding AnalyzeCommand}" IsVisible="{Binding !IsBusy}" ToolTip.Tip="Run the analysis (F5)">
+              <StackPanel Orientation="Horizontal" Spacing="7">
+                <Path Classes="icon" Data="{StaticResource IconPlay}" />
+                <TextBlock Text="Analyze" />
+              </StackPanel>
+            </Button>
+            <Button Command="{Binding AnalyzeCancelCommand}" IsVisible="{Binding IsBusy}">
+              <StackPanel Orientation="Horizontal" Spacing="7">
+                <Path Classes="icon" Data="{StaticResource IconStop}" />
+                <TextBlock Text="Cancel" />
+              </StackPanel>
+            </Button>
+          </Panel>
+        </Grid>
+
+        <Border Classes="badge" c:Paint.Badge="Accent" HorizontalAlignment="Left" Padding="10,2,4,2"
+                IsVisible="{Binding PastedSummary, Converter={x:Static ObjectConverters.IsNotNull}}">
+          <StackPanel Orientation="Horizontal" Spacing="6">
+            <TextBlock Classes="small" Text="{Binding PastedSummary}" VerticalAlignment="Center" />
+            <Button Classes="ghost" Padding="4" Command="{Binding ClearPastedCommand}" ToolTip.Tip="Discard the pasted log">
+              <Path Classes="icon" Data="{StaticResource IconClose}" Width="10" Height="10" />
+            </Button>
+          </StackPanel>
+        </Border>
+
+        <Expander IsExpanded="{Binding OptionsExpanded}" HorizontalAlignment="Stretch">
+          <Expander.Header>
+            <StackPanel Orientation="Horizontal" Spacing="12">
+              <TextBlock Text="Run options" FontWeight="SemiBold" VerticalAlignment="Center" />
+              <TextBlock Classes="small" Text="{Binding ProviderSummary}" c:Paint.Text="{Binding ProviderTone}" VerticalAlignment="Center" />
+            </StackPanel>
+          </Expander.Header>
+
+          <StackPanel Spacing="14">
+            <WrapPanel ItemWidth="262">
+              <StackPanel Spacing="4" Margin="0,0,12,12" ToolTip.Tip="--provider. “None” is --offline: nothing leaves this machine.">
+                <TextBlock Classes="label" Text="AI PROVIDER" />
+                <ComboBox ItemsSource="{Binding ProviderChoices}" SelectedItem="{Binding Provider}" HorizontalAlignment="Stretch" />
+              </StackPanel>
+              <StackPanel Spacing="4" Margin="0,0,12,12" ToolTip.Tip="--model" IsEnabled="{Binding AiOptionsEnabled}">
+                <TextBlock Classes="label" Text="MODEL" />
+                <TextBox Text="{Binding Model}" PlaceholderText="Provider default" />
+              </StackPanel>
+              <StackPanel Spacing="4" Margin="0,0,12,12" ToolTip.Tip="--endpoint" IsEnabled="{Binding AiOptionsEnabled}">
+                <TextBlock Classes="label" Text="ENDPOINT" />
+                <TextBox Text="{Binding Endpoint}" PlaceholderText="Provider default" />
+              </StackPanel>
+              <StackPanel Spacing="4" Margin="0,0,12,12" IsEnabled="{Binding AiOptionsEnabled}"
+                          ToolTip.Tip="--api-key. Used for this session only and never written to disk. An environment variable is safer.">
+                <TextBlock Classes="label" Text="API KEY" />
+                <TextBox Text="{Binding ApiKey}" PasswordChar="•" PlaceholderText="From environment or config" />
+              </StackPanel>
+              <StackPanel Spacing="4" Margin="0,0,12,12" ToolTip.Tip="--effort (Anthropic only)" IsEnabled="{Binding AiOptionsEnabled}">
+                <TextBlock Classes="label" Text="EFFORT" />
+                <ComboBox ItemsSource="{Binding EffortChoices}" SelectedItem="{Binding Effort}" HorizontalAlignment="Stretch" />
+              </StackPanel>
+              <StackPanel Spacing="4" Margin="0,0,12,12" ToolTip.Tip="--timeout, in seconds" IsEnabled="{Binding AiOptionsEnabled}">
+                <TextBlock Classes="label" Text="TIMEOUT (S)" />
+                <NumericUpDown Value="{Binding TimeoutSeconds}" Minimum="5" Maximum="3600" Increment="30" FormatString="0"
+                               PlaceholderText="180" />
+              </StackPanel>
+              <StackPanel Spacing="4" Margin="0,0,12,12" ToolTip.Tip="--max-context-tokens: how much of the log may be sent to a model">
+                <TextBlock Classes="label" Text="TOKEN BUDGET" />
+                <NumericUpDown Value="{Binding TokenBudget}" Minimum="200" Maximum="100000" Increment="250" FormatString="0" />
+              </StackPanel>
+              <StackPanel Spacing="4" Margin="0,0,12,12"
+                          ToolTip.Tip="--repo: the source tree the log refers to. Empty means the repository around the log.">
+                <TextBlock Classes="label" Text="REPOSITORY" />
+                <DockPanel>
+                  <Button DockPanel.Dock="Right" Margin="6,0,0,0" Command="{Binding BrowseRepositoryCommand}" ToolTip.Tip="Choose a folder">
+                    <Path Classes="icon" Data="{StaticResource IconFolder}" />
+                  </Button>
+                  <TextBox Text="{Binding Repository}" PlaceholderText="Detected automatically" />
+                </DockPanel>
+              </StackPanel>
+            </WrapPanel>
+
+            <StackPanel Orientation="Horizontal" Spacing="24">
+              <CheckBox IsChecked="{Binding ShowWarnings}" Content="Show warnings" ToolTip.Tip="--warnings" />
+              <CheckBox IsChecked="{Binding ExitCodeGate}" Content="CI gate: exit code 1 on problems" ToolTip.Tip="--exit-code" />
+            </StackPanel>
+
+            <StackPanel Spacing="4">
+              <TextBlock Classes="label" Text="EQUIVALENT COMMAND" />
+              <Border Classes="codeblock">
+                <DockPanel>
+                  <Button DockPanel.Dock="Right" Classes="ghost small" Margin="8,0,0,0" c:Actions.CopyText="{Binding CommandPreview}"
+                          Content="Copy" VerticalAlignment="Center" />
+                  <SelectableTextBlock Classes="mono" Text="{Binding CommandPreview}" TextWrapping="Wrap" VerticalAlignment="Center" />
+                </DockPanel>
+              </Border>
+            </StackPanel>
+          </StackPanel>
+        </Expander>
+
+        <Border Classes="badge" c:Paint.Badge="Error" Padding="12,8"
+                IsVisible="{Binding ErrorMessage, Converter={x:Static ObjectConverters.IsNotNull}}">
+          <DockPanel>
+            <Path DockPanel.Dock="Left" Classes="icon" Data="{StaticResource IconError}" c:Paint.Stroke="Error" Margin="0,2,10,0" VerticalAlignment="Top" />
+            <SelectableTextBlock Text="{Binding ErrorMessage}" TextWrapping="Wrap" />
+          </DockPanel>
+        </Border>
+        <Border Classes="badge" c:Paint.Badge="Warning" Padding="12,8"
+                IsVisible="{Binding ProviderWarning, Converter={x:Static ObjectConverters.IsNotNull}}">
+          <DockPanel>
+            <Path DockPanel.Dock="Left" Classes="icon" Data="{StaticResource IconWarning}" c:Paint.Stroke="Warning" Margin="0,2,10,0" VerticalAlignment="Top" />
+            <SelectableTextBlock Text="{Binding ProviderWarning}" TextWrapping="Wrap" />
+          </DockPanel>
+        </Border>
+
+        <ProgressBar IsIndeterminate="True" Height="3" MinHeight="3" IsVisible="{Binding IsBusy}" />
+      </StackPanel>
+
+      <Panel>
+        <!-- Start screen -->
+        <ScrollViewer IsVisible="{Binding !HasReport}">
+          <StackPanel MaxWidth="780" Margin="20,18,20,24" Spacing="{DynamicResource DiagSpacing}">
+            <Panel>
+              <Rectangle RadiusX="10" RadiusY="10" StrokeThickness="1.5" StrokeDashArray="5,4"
+                         Stroke="{DynamicResource DiagBorderStrongBrush}" Fill="{DynamicResource DiagSurfaceBrush}" />
+              <StackPanel Spacing="12" Margin="32,38" HorizontalAlignment="Center">
+                <Path Classes="icon large" Data="{StaticResource IconSave}" c:Paint.Stroke="Accent" HorizontalAlignment="Center" />
+                <TextBlock Classes="h2" Text="Drop a build or test log here" HorizontalAlignment="Center" />
+                <TextBlock Classes="muted" TextAlignment="Center" TextWrapping="Wrap" MaxWidth="520"
+                           Text="An MSBuild binary log, console or CI build output, dotnet test output, or a folder that contains a .binlog." />
+                <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center" Margin="0,6,0,0">
+                  <Button Classes="primary" Command="{Binding BrowseFileCommand}" Content="Open file…" />
+                  <Button Command="{Binding BrowseFolderCommand}" Content="Open folder…" />
+                  <Button Command="{Binding PasteCommand}" Content="Paste from clipboard" />
+                </StackPanel>
+              </StackPanel>
+            </Panel>
+
+            <Border Classes="card">
+              <StackPanel Spacing="10">
+                <TextBlock Classes="label" Text="HOW TO GET A LOG" />
+                <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto">
+                  <SelectableTextBlock Classes="mono" Text="dotnet build -bl" c:Paint.Text="Secondary" Margin="0,0,18,6" />
+                  <TextBlock Grid.Column="1" Classes="muted" Text="writes msbuild.binlog, the richest input" TextWrapping="Wrap" />
+                  <SelectableTextBlock Grid.Row="1" Classes="mono" Text="dotnet test" c:Paint.Text="Secondary" Margin="0,0,18,0" />
+                  <TextBlock Grid.Row="1" Grid.Column="1" Classes="muted" Text="copy the console output, then Paste" TextWrapping="Wrap" />
+                </Grid>
+              </StackPanel>
+            </Border>
+
+            <StackPanel Spacing="6" IsVisible="{Binding HasRecent}">
+              <TextBlock Classes="label" Text="RECENT" />
+              <Border Classes="card" Padding="6">
+                <ItemsControl ItemsSource="{Binding RecentInputs}">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="sys:String">
+                      <Button Classes="ghost" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"
+                              Command="{Binding $parent[ItemsControl].((vm:AnalyzeViewModel)DataContext).OpenRecentCommand}"
+                              CommandParameter="{Binding}">
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                          <Path Classes="icon muted" Data="{StaticResource IconFile}" />
+                          <TextBlock Classes="mono" Text="{Binding}" TextTrimming="CharacterEllipsis" />
+                        </StackPanel>
+                      </Button>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </Border>
+            </StackPanel>
+          </StackPanel>
+        </ScrollViewer>
+
+        <!-- Report -->
+        <DockPanel IsVisible="{Binding HasReport}">
+          <ContentControl Content="{Binding Report}" />
+        </DockPanel>
+      </Panel>
+    </DockPanel>
+
+    <!-- Shown while something is dragged over the page -->
+    <Border Name="DropOverlay" IsVisible="False" IsHitTestVisible="False" Margin="12" CornerRadius="12"
+            Background="{DynamicResource DiagAccentSoftBrush}"
+            BorderBrush="{DynamicResource DiagAccentBrush}" BorderThickness="2" Opacity="0.94">
+      <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="10">
+        <Path Classes="icon large" Data="{StaticResource IconSave}" c:Paint.Stroke="Accent" HorizontalAlignment="Center" />
+        <TextBlock Classes="h2" Text="Drop to analyze" />
+      </StackPanel>
+    </Border>
+  </Panel>
+</UserControl>

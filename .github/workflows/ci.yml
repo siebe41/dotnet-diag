@@ -50,7 +50,9 @@ jobs:
         shell: bash
         run: |
           set -u
-          dotnet tool install DotnetDiag.Tool --tool-path .tools --add-source artifacts/nupkg
+          # --source, not --add-source: newer SDKs refuse --add-source next to the package source mapping in
+          # nuget.config. The tool package carries its dependencies, so the local folder is the only feed needed.
+          dotnet tool install DotnetDiag.Tool --tool-path .tools --source artifacts/nupkg
           export PATH="$PWD/.tools:$PATH"
           fixtures=tests/DotnetDiag.Tests/Fixtures
           expect() { case "$1" in *"$2"*) ;; *) echo "expected output to contain: $2"; echo "$1" | head -40; exit 1;; esac; }

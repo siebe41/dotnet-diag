@@ -1,0 +1,91 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:DotnetDiag.Gui.ViewModels"
+             xmlns:c="using:DotnetDiag.Gui.Controls"
+             x:Class="DotnetDiag.Gui.Views.DoctorView"
+             x:DataType="vm:DoctorViewModel">
+
+  <ScrollViewer>
+    <StackPanel Margin="20,16,20,24" Spacing="{DynamicResource DiagSpacing}" MaxWidth="1040" HorizontalAlignment="Left">
+
+      <DockPanel>
+        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="6" VerticalAlignment="Top" Margin="16,0,0,0">
+          <Button Command="{Binding RefreshCommand}" ToolTip.Tip="Read the configuration and environment again">
+            <StackPanel Orientation="Horizontal" Spacing="7">
+              <Path Classes="icon" Data="{StaticResource IconRefresh}" />
+              <TextBlock Text="Refresh" />
+            </StackPanel>
+          </Button>
+          <Button Command="{Binding CopyReportCommand}" ToolTip.Tip="Copy this table as text, e.g. for a bug report. Keys are never included.">
+            <StackPanel Orientation="Horizontal" Spacing="7">
+              <Path Classes="icon" Data="{StaticResource IconCopy}" />
+              <TextBlock Text="Copy" />
+            </StackPanel>
+          </Button>
+          <Button Classes="primary" Command="{Binding EditSettingsCommand}" Content="Edit settings" />
+        </StackPanel>
+        <StackPanel Spacing="6">
+          <TextBlock Classes="h2" Text="Configuration check" />
+          <TextBlock Classes="muted" TextWrapping="Wrap"
+                     Text="The AI provider settings the next analysis would use, and where each value comes from. Run options win over environment variables, which win over the config file, which wins over the defaults." />
+        </StackPanel>
+      </DockPanel>
+
+      <Border Classes="badge" c:Paint.Badge="{Binding StatusTone}" Padding="14,10">
+        <SelectableTextBlock Text="{Binding Status}" TextWrapping="Wrap" />
+      </Border>
+
+      <Border Classes="card" Padding="0">
+        <StackPanel>
+          <Border Classes="row">
+            <Grid ColumnDefinitions="190,*,230">
+              <TextBlock Classes="label" Text="SETTING" />
+              <TextBlock Grid.Column="1" Classes="label" Text="VALUE" />
+              <TextBlock Grid.Column="2" Classes="label" Text="SOURCE" />
+            </Grid>
+          </Border>
+          <ItemsControl ItemsSource="{Binding Rows}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="vm:DoctorRow">
+                <Border Classes="row">
+                  <Grid ColumnDefinitions="190,*,230">
+                    <TextBlock Classes="strong" Text="{Binding Setting}" />
+                    <SelectableTextBlock Grid.Column="1" Text="{Binding Value}" c:Paint.Text="{Binding Tone}" TextWrapping="Wrap" Margin="0,0,16,0" />
+                    <TextBlock Grid.Column="2" Classes="mono small muted" Text="{Binding Source}" TextWrapping="Wrap" VerticalAlignment="Center" />
+                  </Grid>
+                </Border>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </StackPanel>
+      </Border>
+
+      <StackPanel Spacing="8">
+        <DockPanel>
+          <Button DockPanel.Dock="Right" Classes="ghost small" Command="{Binding OpenConfigFolderCommand}" Content="Open config folder" />
+          <TextBlock Classes="label" Text="ENVIRONMENT VARIABLES" VerticalAlignment="Center" />
+        </DockPanel>
+        <Border Classes="card" Padding="0">
+          <ItemsControl ItemsSource="{Binding Variables}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="vm:VariableRow">
+                <Border Classes="row">
+                  <Grid ColumnDefinitions="290,*,320">
+                    <SelectableTextBlock Classes="mono" Text="{Binding Name}" />
+                    <Panel Grid.Column="1" Margin="0,0,16,0">
+                      <SelectableTextBlock Text="{Binding Value}" c:Paint.Text="Success" TextWrapping="Wrap" IsVisible="{Binding IsSet}" />
+                      <TextBlock Classes="muted" Text="{Binding Value}" IsVisible="{Binding !IsSet}" />
+                    </Panel>
+                    <TextBlock Grid.Column="2" Classes="small muted" Text="{Binding Purpose}" TextWrapping="Wrap" VerticalAlignment="Center" />
+                  </Grid>
+                </Border>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </Border>
+        <TextBlock Classes="small muted" TextWrapping="Wrap"
+                   Text="The app reads the environment it was started with. After changing a variable, restart the app. Having an API key in the environment never enables a provider by itself." />
+      </StackPanel>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

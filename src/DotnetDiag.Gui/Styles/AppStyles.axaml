@@ -1,0 +1,259 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <!-- Colors, font sizes and spacing come from Diag* resources set by ThemeManager; nothing here is hard-coded. -->
+
+  <Styles.Resources>
+    <!-- Line icons on a 24-unit grid, drawn with Path.icon (stroked, never filled). -->
+    <StreamGeometry x:Key="IconSearch">M11,4 a7,7 0 1,0 0.01,0 M16,16 L20.5,20.5</StreamGeometry>
+    <StreamGeometry x:Key="IconBook">M5,4 H19 V20 H5 Z M9,4 V20 M12,9 H16 M12,13 H16</StreamGeometry>
+    <StreamGeometry x:Key="IconPulse">M3,12 H8 L10,5 L14,19 L16,12 H21</StreamGeometry>
+    <StreamGeometry x:Key="IconSliders">M4,7 H20 M4,12 H20 M4,17 H20 M9,5 V9 M15,10 V14 M7,15 V19</StreamGeometry>
+    <StreamGeometry x:Key="IconFolder">M3,6 V19 H21 V9 H12 L10,6 Z</StreamGeometry>
+    <StreamGeometry x:Key="IconFile">M6,3 H14 L18,7 V21 H6 Z M14,3 V7 H18</StreamGeometry>
+    <StreamGeometry x:Key="IconPaste">M8,5 H6 V21 H18 V5 H16 M9,3 H15 V7 H9 Z</StreamGeometry>
+    <StreamGeometry x:Key="IconCopy">M9,9 H20 V20 H9 Z M5,15 H4 V4 H15 V5</StreamGeometry>
+    <StreamGeometry x:Key="IconSave">M12,4 V15 M7,11 L12,16 L17,11 M5,20 H19</StreamGeometry>
+    <StreamGeometry x:Key="IconPlay">M7,4 L19,12 L7,20 Z</StreamGeometry>
+    <StreamGeometry x:Key="IconStop">M6,6 H18 V18 H6 Z</StreamGeometry>
+    <StreamGeometry x:Key="IconRefresh">M20,12 a8,8 0 1,1 -2.3,-5.7 M18,2.5 V6.5 H14</StreamGeometry>
+    <StreamGeometry x:Key="IconExternal">M10,5 H5 V19 H19 V14 M13,4 H20 V11 M20,4 L11,13</StreamGeometry>
+    <StreamGeometry x:Key="IconClose">M6,6 L18,18 M18,6 L6,18</StreamGeometry>
+    <StreamGeometry x:Key="IconCheck">M4,12 L10,18 L20,6</StreamGeometry>
+    <StreamGeometry x:Key="IconWarning">M12,4 L21,20 H3 Z M12,10 V14 M12,17 V17.5</StreamGeometry>
+    <StreamGeometry x:Key="IconError">M12,3 a9,9 0 1,0 0.01,0 M8.5,8.5 L15.5,15.5 M15.5,8.5 L8.5,15.5</StreamGeometry>
+    <StreamGeometry x:Key="IconTerminal">M3,5 H21 V19 H3 Z M7,9 L10,12 L7,15 M12,15 H16</StreamGeometry>
+    <StreamGeometry x:Key="IconSpark">M12,3 L14,10 L21,12 L14,14 L12,21 L10,14 L3,12 L10,10 Z</StreamGeometry>
+    <StreamGeometry x:Key="IconPackage">M12,3 L20,7 V17 L12,21 L4,17 V7 Z M4,7 L12,11 L20,7 M12,11 V21</StreamGeometry>
+    <StreamGeometry x:Key="IconFlask">M9,3 H15 M10,3 V9 L5,19 Q4.5,21 6.5,21 H17.5 Q19.5,21 19,19 L14,9 V3</StreamGeometry>
+  </Styles.Resources>
+
+  <Style Selector="Window">
+    <Setter Property="Background" Value="{DynamicResource DiagBackgroundBrush}" />
+    <Setter Property="Foreground" Value="{DynamicResource DiagTextBrush}" />
+    <Setter Property="FontSize" Value="{DynamicResource DiagFontSize}" />
+  </Style>
+
+  <!-- Text -->
+  <Style Selector=":is(TextBlock).h1">
+    <Setter Property="FontSize" Value="{DynamicResource DiagFontSizeTitle}" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+  </Style>
+  <Style Selector=":is(TextBlock).h2">
+    <Setter Property="FontSize" Value="{DynamicResource DiagFontSizeLarge}" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+  </Style>
+  <Style Selector=":is(TextBlock).h3">
+    <Setter Property="FontSize" Value="{DynamicResource DiagFontSizeMedium}" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+  </Style>
+  <Style Selector=":is(TextBlock).small">
+    <Setter Property="FontSize" Value="{DynamicResource DiagFontSizeSmall}" />
+  </Style>
+  <Style Selector=":is(TextBlock).muted">
+    <Setter Property="Foreground" Value="{DynamicResource DiagTextMutedBrush}" />
+  </Style>
+  <Style Selector=":is(TextBlock).mono">
+    <Setter Property="FontFamily" Value="{DynamicResource DiagMonoFont}" />
+    <Setter Property="FontSize" Value="{DynamicResource DiagFontSizeMono}" />
+  </Style>
+  <Style Selector=":is(TextBlock).strong">
+    <Setter Property="FontWeight" Value="SemiBold" />
+  </Style>
+  <!-- Section label: small, spaced, monospace capitals, like the sub-label under the Siebert & The Machine wordmark. -->
+  <Style Selector=":is(TextBlock).label">
+    <Setter Property="FontFamily" Value="{DynamicResource DiagMonoFont}" />
+    <Setter Property="FontSize" Value="{DynamicResource DiagFontSizeSmall}" />
+    <Setter Property="Foreground" Value="{DynamicResource DiagTextMutedBrush}" />
+    <Setter Property="LetterSpacing" Value="1.4" />
+  </Style>
+  <Style Selector="SelectableTextBlock">
+    <Setter Property="SelectionBrush" Value="{DynamicResource DiagAccentSoftBrush}" />
+  </Style>
+
+  <!-- Surfaces -->
+  <Style Selector="Border.card">
+    <Setter Property="Background" Value="{DynamicResource DiagSurfaceBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource DiagBorderBrush}" />
+    <Setter Property="BorderThickness" Value="{DynamicResource DiagBorderThickness}" />
+    <Setter Property="CornerRadius" Value="8" />
+    <Setter Property="Padding" Value="{DynamicResource DiagCardPadding}" />
+  </Style>
+  <Style Selector="Border.codeblock">
+    <Setter Property="Background" Value="{DynamicResource DiagSurfaceRaisedBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource DiagBorderBrush}" />
+    <Setter Property="BorderThickness" Value="{DynamicResource DiagBorderThickness}" />
+    <Setter Property="CornerRadius" Value="6" />
+    <Setter Property="Padding" Value="12,9" />
+  </Style>
+  <Style Selector="Border.badge">
+    <Setter Property="BorderThickness" Value="{DynamicResource DiagBorderThickness}" />
+    <Setter Property="CornerRadius" Value="4" />
+    <Setter Property="Padding" Value="7,1" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+  </Style>
+  <Style Selector="Border.row">
+    <Setter Property="Padding" Value="{DynamicResource DiagRowPadding}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource DiagBorderBrush}" />
+    <Setter Property="BorderThickness" Value="0,0,0,1" />
+  </Style>
+  <Style Selector="Border.divider">
+    <Setter Property="Height" Value="1" />
+    <Setter Property="Background" Value="{DynamicResource DiagBorderBrush}" />
+  </Style>
+
+  <!-- Icons -->
+  <Style Selector="Path.icon">
+    <Setter Property="Stroke" Value="{DynamicResource DiagTextBrush}" />
+    <Setter Property="StrokeThickness" Value="1.7" />
+    <Setter Property="StrokeLineCap" Value="Round" />
+    <Setter Property="StrokeJoin" Value="Round" />
+    <Setter Property="Stretch" Value="Uniform" />
+    <Setter Property="Width" Value="16" />
+    <Setter Property="Height" Value="16" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+  </Style>
+  <Style Selector="Path.icon.muted">
+    <Setter Property="Stroke" Value="{DynamicResource DiagTextMutedBrush}" />
+  </Style>
+  <Style Selector="Path.icon.large">
+    <Setter Property="Width" Value="40" />
+    <Setter Property="Height" Value="40" />
+    <Setter Property="StrokeThickness" Value="1.2" />
+  </Style>
+
+  <!-- Buttons -->
+  <Style Selector="Button">
+    <Setter Property="CornerRadius" Value="6" />
+    <Setter Property="Padding" Value="12,6" />
+  </Style>
+  <Style Selector="Button.primary">
+    <Setter Property="Background" Value="{DynamicResource DiagAccentBrush}" />
+    <Setter Property="Foreground" Value="{DynamicResource DiagOnAccentBrush}" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+  </Style>
+  <Style Selector="Button.primary:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource DiagAccentHoverBrush}" />
+    <Setter Property="Foreground" Value="{DynamicResource DiagOnAccentBrush}" />
+  </Style>
+  <Style Selector="Button.primary:pressed /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource DiagAccentBrush}" />
+    <Setter Property="Foreground" Value="{DynamicResource DiagOnAccentBrush}" />
+  </Style>
+  <Style Selector="Button.primary Path.icon">
+    <Setter Property="Stroke" Value="{DynamicResource DiagOnAccentBrush}" />
+  </Style>
+  <Style Selector="Button.ghost">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderBrush" Value="Transparent" />
+    <Setter Property="Padding" Value="8,5" />
+  </Style>
+  <Style Selector="Button.ghost:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource DiagHoverBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource DiagBorderBrush}" />
+  </Style>
+  <!-- Flash after a copy button put its text on the clipboard (see Controls/Actions.cs). -->
+  <Style Selector="Button.copied">
+    <Setter Property="Foreground" Value="{DynamicResource DiagSuccessTextBrush}" />
+  </Style>
+  <Style Selector="Button.copied Path.icon">
+    <Setter Property="Stroke" Value="{DynamicResource DiagSuccessBrush}" />
+  </Style>
+  <Style Selector="Button.small">
+    <Setter Property="FontSize" Value="{DynamicResource DiagFontSizeSmall}" />
+    <Setter Property="Padding" Value="8,3" />
+  </Style>
+  <Style Selector="Button.link">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderBrush" Value="Transparent" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="Padding" Value="0" />
+    <Setter Property="Foreground" Value="{DynamicResource DiagAccentTextBrush}" />
+    <Setter Property="Cursor" Value="Hand" />
+  </Style>
+  <Style Selector="Button.link:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderBrush" Value="Transparent" />
+    <Setter Property="Foreground" Value="{DynamicResource DiagTextBrush}" />
+  </Style>
+  <Style Selector="Button.link:pressed /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderBrush" Value="Transparent" />
+    <Setter Property="Foreground" Value="{DynamicResource DiagAccentTextBrush}" />
+  </Style>
+
+  <!-- Navigation rail -->
+  <Style Selector="ListBox.nav">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="Padding" Value="0" />
+  </Style>
+  <Style Selector="ListBox.nav ListBoxItem">
+    <Setter Property="Padding" Value="12,9" />
+    <Setter Property="Margin" Value="0,1" />
+    <Setter Property="CornerRadius" Value="6" />
+  </Style>
+  <Style Selector="ListBox.nav ListBoxItem:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource DiagHoverBrush}" />
+  </Style>
+  <Style Selector="ListBox.nav ListBoxItem:selected /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource DiagAccentSoftBrush}" />
+    <Setter Property="Foreground" Value="{DynamicResource DiagTextBrush}" />
+  </Style>
+  <Style Selector="ListBox.nav ListBoxItem:selected:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource DiagAccentSoftBrush}" />
+    <Setter Property="Foreground" Value="{DynamicResource DiagTextBrush}" />
+  </Style>
+
+  <!-- Flat list used for catalogs: rows separated by hairlines, accent tint when selected. -->
+  <Style Selector="ListBox.flat">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="Padding" Value="0" />
+  </Style>
+  <Style Selector="ListBox.flat ListBoxItem">
+    <Setter Property="Padding" Value="{DynamicResource DiagRowPadding}" />
+    <Setter Property="CornerRadius" Value="6" />
+  </Style>
+  <Style Selector="ListBox.flat ListBoxItem:selected /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource DiagAccentSoftBrush}" />
+    <Setter Property="Foreground" Value="{DynamicResource DiagTextBrush}" />
+  </Style>
+  <Style Selector="ListBox.flat ListBoxItem:selected:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource DiagAccentSoftBrush}" />
+    <Setter Property="Foreground" Value="{DynamicResource DiagTextBrush}" />
+  </Style>
+
+  <!-- Theme picker tiles -->
+  <Style Selector="ListBox.themes">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="Padding" Value="0" />
+  </Style>
+  <Style Selector="ListBox.themes ListBoxItem">
+    <Setter Property="Padding" Value="8" />
+    <Setter Property="Margin" Value="0,0,8,8" />
+    <Setter Property="CornerRadius" Value="10" />
+    <Setter Property="BorderThickness" Value="2" />
+    <Setter Property="BorderBrush" Value="Transparent" />
+  </Style>
+  <Style Selector="ListBox.themes ListBoxItem:selected /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource DiagAccentSoftBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource DiagAccentBrush}" />
+    <Setter Property="Foreground" Value="{DynamicResource DiagTextBrush}" />
+  </Style>
+  <Style Selector="ListBox.themes ListBoxItem:selected:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource DiagAccentSoftBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource DiagAccentBrush}" />
+    <Setter Property="Foreground" Value="{DynamicResource DiagTextBrush}" />
+  </Style>
+
+  <!-- Tabs: the stock Fluent pivot header is far too large for a tool window. -->
+  <Style Selector="TabItem">
+    <Setter Property="FontSize" Value="{DynamicResource DiagFontSize}" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+    <Setter Property="MinHeight" Value="38" />
+    <Setter Property="Padding" Value="14,6" />
+  </Style>
+  <Style Selector="TabControl">
+    <Setter Property="Padding" Value="0" />
+  </Style>
+
+</Styles>
