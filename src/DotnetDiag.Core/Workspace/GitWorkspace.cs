@@ -57,7 +57,11 @@ public sealed class GitWorkspace
         return ModifiedFiles.Contains(relative);
     }
 
-    /// <summary>Maps a path from a log to an existing file in this workspace, or null.</summary>
+    /// <summary>
+    /// Maps a path from a log to an existing file in this workspace, or null. Only files that
+    /// <see cref="PathConfinement.IsReadable"/> allows are returned: inside <see cref="Root"/> after resolving
+    /// <c>..</c> and symbolic links, and not below a folder or named like a file that starts with a dot.
+    /// </summary>
     public string? Resolve(string pathFromLog)
     {
         if (string.IsNullOrWhiteSpace(pathFromLog))
@@ -68,27 +72,22 @@ public sealed class GitWorkspace
         var normalized = pathFromLog.Replace('\\', '/');
         try
         {
-            if (Path.IsPathRooted(normalized) && File.Exists(normalized))
+            if (Path.IsPathRooted(normalized) && Confined(normalized) is { } rooted)
             {
-                return Path.GetFullPath(normalized);
+                return rooted;
             }
 
-            if (!IsRootedAnywhere(normalized))
+            if (!IsRootedAnywhere(normalized) && Confined(Path.Combine(Root, normalized)) is { } relative)
             {
-                var candidate = Path.GetFullPath(Path.Combine(Root, normalized));
-                if (File.Exists(candidate))
-                {
-                    return candidate;
-                }
+                return relative;
             }
 
-            // Path from another machine (e.g. /home/runner/work/app/app/src/App/Program.cs or D:\a\app\src\...):
-            // drop leading segments until the remainder exists under this root.
+            // Path from another machine (e.g. /home/runner/work/app/app/src/App/Program.cs or D:\a\app\src\...),
+            // or from another checkout on this one: drop leading segments until the remainder exists under this root.
             var segments = normalized.Split('/', StringSplitOptions.RemoveEmptyEntries);
             for (var skip = 1; skip < segments.Length; skip++)
             {
-                var candidate = Path.Combine([Root, .. segments[skip..]]);
-                if (File.Exists(candidate))
+                if (Confined(Path.Combine([Root, .. segments[skip..]])) is { } mapped)
                 {
                     // Remember the CI checkout root so other paths from the same log can be made relative
                     // even when they do not exist locally (e.g. build outputs, other projects).
@@ -97,7 +96,7 @@ public sealed class GitWorkspace
                         _foreignRoots.Add(string.Join('/', segments[..skip]));
                     }
 
-                    return Path.GetFullPath(candidate);
+                    return mapped;
                 }
             }
         }
@@ -107,6 +106,12 @@ public sealed class GitWorkspace
         }
 
         return null;
+    }
+
+    private string? Confined(string candidate)
+    {
+        var full = Path.GetFullPath(candidate);
+        return File.Exists(full) && PathConfinement.IsReadable(Root, full) ? full : null;
     }
 
     /// <summary>True when <paramref name="path"/> resolves to a file inside this workspace.</summary>

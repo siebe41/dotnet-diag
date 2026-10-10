@@ -284,13 +284,13 @@ public sealed class ContextBuilder(ContextBuilderOptions? options = null)
         var sb = new StringBuilder();
         foreach (var project in projects)
         {
-            var path = workspace?.Resolve(project) ?? (File.Exists(project) ? project : null);
+            var path = PathConfinement.ResolveFromLog(project, workspace);
             if (path is null)
             {
                 continue;
             }
 
-            var references = ProjectInspector.GetPackageReferences(path);
+            var references = ProjectInspector.GetPackageReferences(path, PathConfinement.RootFor(workspace));
             var name = workspace?.ToRelative(path) ?? Path.GetFileName(path);
             var list = references.Count == 0
                 ? "(none)"
