@@ -96,6 +96,17 @@ public class CommandLineTests
         Assert.Contains("Package downgrade detected", stdout);
     }
 
+    [Fact]
+    public async Task Doctor_hides_credentials_embedded_in_the_endpoint()
+    {
+        var (exit, stdout, _) = await RunAsync("doctor", "--provider", "ollama", "--endpoint", "https://alice:hunter2@ollama.internal:11434");
+
+        Assert.Equal(ExitCodes.Success, exit);
+        Assert.Contains("https://***@ollama.internal:11434/", stdout);
+        Assert.DoesNotContain("hunter2", stdout);
+        Assert.DoesNotContain("alice", stdout);
+    }
+
     private static async Task<(int Exit, string Stdout, string Stderr)> RunAsync(params string[] args)
     {
         var root = new RootCommand { AnalyzeCommand.Create(), ExplainCommand.Create(), DoctorCommand.Create() };
