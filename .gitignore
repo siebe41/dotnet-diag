@@ -38,6 +38,19 @@ ScaffoldingReadMe.txt
 
 # dotenv environment variables file
 .env
+.env.*
+
+# Local secrets and credentials: never commit these
+secrets.json
+appsettings.*.local.json
+*.pfx
+
+# Local databases
+*.db
+
+# Visual Studio user-specific files
+*.user
+.vs/
 
 # Others
 ~$*
