@@ -55,6 +55,22 @@ jobs:
       - name: Restore
         run: dotnet restore
 
+      # NuGet advisories for direct and transitive packages. Directory.Build.props keeps NU1901-NU1904
+      # as warnings so a new advisory does not break local builds; this is where it fails instead.
+      # Advisories do not depend on the OS, so one leg is enough.
+      - name: Check for vulnerable packages
+        if: matrix.os == 'ubuntu-latest'
+        shell: bash
+        run: |
+          set -o pipefail
+          dotnet list package --vulnerable --include-transitive
+          vulnerable=$(dotnet list package --vulnerable --include-transitive --format json \
+            | jq -r '[.projects[].frameworks[]? | (.topLevelPackages[]?, .transitivePackages[]?) | .id] | unique | join(", ")')
+          if [ -n "$vulnerable" ]; then
+            echo "::error::Vulnerable NuGet packages: $vulnerable"
+            exit 1
+          fi
+
       - name: Build
         run: dotnet build --no-restore -c Release -bl:artifacts/logs/build.binlog
 
