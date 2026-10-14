@@ -1,0 +1,100 @@
+name: Missed the root cause
+description: dotnet-diag ran, but its diagnosis was wrong, incomplete or pointed at a symptom.
+title: "[Diagnosis] "
+labels: [ "diagnosis-quality", "needs-triage" ]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Reports like this are how the offline hints and the eval scenarios get better: every miss can become a scenario or a test fixture. You do not need to read the code; what the tool said and what the real cause turned out to be is enough. The questions follow the field-trial grading in [docs/TESTING.md](https://github.com/siebe41/dotnet-diag/blob/main/docs/TESTING.md#4-field-trial-on-real-failures).
+
+        > [!WARNING]
+        > **Build logs and binary logs from private code can contain source lines, internal paths, package feed URLs and environment variables (including keys and tokens).** Issues are public and stay in the history. Do not attach a binlog from a private build. Paste trimmed output instead, with names, paths and URLs you cannot share replaced by placeholders. A minimal project that reproduces the failure is the most useful thing you can attach.
+  - type: dropdown
+    id: what-went-wrong
+    attributes:
+      label: What went wrong
+      options:
+        - The top hint was not the real cause
+        - The suggested fix did not work
+        - The real cause was not mentioned at all
+        - It flagged a symptom as the cause
+        - Other
+    validations:
+      required: true
+  - type: dropdown
+    id: input
+    attributes:
+      label: Input
+      options:
+        - Binary log (.binlog)
+        - Text build log
+        - dotnet test output
+        - Other
+    validations:
+      required: true
+  - type: dropdown
+    id: provider
+    attributes:
+      label: AI provider used
+      options:
+        - No provider (offline hints only)
+        - ollama
+        - anthropic
+        - openai (or another OpenAI-compatible endpoint)
+    validations:
+      required: true
+  - type: input
+    id: model
+    attributes:
+      label: Model
+      description: The model, if a provider was used.
+      placeholder: e.g. qwen2.5-coder:14b, claude-opus-5-5
+  - type: textarea
+    id: output
+    attributes:
+      label: What dotnet-diag said
+      description: "The tool's output, preferably from `--format markdown`. Trim it and check it for anything private first."
+      render: markdown
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Model context (optional)
+      description: "The bundle from `--show-context` (or the desktop app's Model context tab), if a provider was involved. It contains source lines from your code: only paste it if they can be public."
+      render: markdown
+  - type: textarea
+    id: real-cause
+    attributes:
+      label: The real cause and fix
+      description: What was actually wrong, and what change fixed the build or test.
+      placeholder: e.g. The project referenced Microsoft.Extensions.Logging 8.0.0 directly; bumping it to 9.0.0 fixed the NU1605, which the tool reported as a missing package.
+    validations:
+      required: true
+  - type: input
+    id: minutes-saved
+    attributes:
+      label: Minutes saved or lost
+      description: Compared with reading the raw log yourself; negative if the tool misled you. A rough estimate is fine.
+      placeholder: e.g. -15
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: The output of `dotnet-diag --version`, or the commit you built from.
+      placeholder: e.g. 0.1.0, or main at abc1234
+  - type: input
+    id: sdk
+    attributes:
+      label: .NET SDK and operating system
+      placeholder: e.g. SDK 9.0.318 on Ubuntu 24.04
+  - type: checkboxes
+    id: no-secrets
+    attributes:
+      label: Before you submit
+      options:
+        - label: This report contains no keys, tokens, private source code, internal paths or feed URLs, and no binlog from a private build.
+          required: true

@@ -511,7 +511,7 @@ public sealed partial class LocalDiagnosticEngine(GitWorkspace? workspace = null
     private IReadOnlyList<PackageReferenceInfo> PackageReferences(BuildDiagnostic diagnostic)
     {
         var projectPath = ProjectPath(diagnostic);
-        var resolved = projectPath is null ? null : workspace?.Resolve(projectPath) ?? (File.Exists(projectPath) ? projectPath : null);
+        var resolved = projectPath is null ? null : PathConfinement.ResolveFromLog(projectPath, workspace);
         if (resolved is null)
         {
             return [];
@@ -519,7 +519,7 @@ public sealed partial class LocalDiagnosticEngine(GitWorkspace? workspace = null
 
         if (!_packageCache.TryGetValue(resolved, out var references))
         {
-            references = ProjectInspector.GetPackageReferences(resolved);
+            references = ProjectInspector.GetPackageReferences(resolved, PathConfinement.RootFor(workspace));
             _packageCache[resolved] = references;
         }
 

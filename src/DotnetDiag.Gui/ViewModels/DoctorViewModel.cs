@@ -125,10 +125,7 @@ public sealed partial class DoctorViewModel : ObservableObject
     }
 
     /// <summary>Hides <c>user:password@</c> in a URL: this page is made to be copied into bug reports.</summary>
-    private static string WithoutCredentials(string value) =>
-        Uri.TryCreate(value, UriKind.Absolute, out var uri) && uri.UserInfo.Length > 0
-            ? value.Replace(uri.UserInfo + "@", "***@", StringComparison.Ordinal)
-            : value;
+    private static string WithoutCredentials(string value) => CredentialMasking.WithoutCredentials(value);
 
     [RelayCommand]
     private Task CopyReportAsync()

@@ -28,7 +28,8 @@ internal static class DoctorCommand
             if (settings.Kind != ProviderKind.None)
             {
                 table.AddRow("Model", Markup.Escape(settings.Model ?? "(not set)"), Markup.Escape(Origin("Model")));
-                table.AddRow("Endpoint", Markup.Escape(settings.Endpoint?.ToString() ?? "(not set)"), Markup.Escape(Origin("Endpoint")));
+                // Credentials in the endpoint URL are masked: this output is made to be pasted into bug reports.
+                table.AddRow("Endpoint", Markup.Escape(settings.Endpoint is null ? "(not set)" : CredentialMasking.WithoutCredentials(settings.Endpoint)), Markup.Escape(Origin("Endpoint")));
                 table.AddRow("API key", string.IsNullOrEmpty(settings.ApiKey) ? "[grey]not set[/]" : "[green]set[/]", Markup.Escape(Origin("ApiKey")));
                 table.AddRow("Timeout", $"{settings.Timeout.TotalSeconds:0}s", Markup.Escape(Origin("Timeout")));
                 if (settings.Effort is not null)

@@ -11,14 +11,19 @@ public sealed record PackageReferenceInfo(string Name, string? Version, string S
 /// </summary>
 public static class ProjectInspector
 {
-    public static IReadOnlyList<PackageReferenceInfo> GetPackageReferences(string projectPath)
+    /// <summary>
+    /// The package references of <paramref name="projectPath"/>. Both the project and the Directory.Packages.props
+    /// it inherits are read only when they are inside <paramref name="root"/> (see <see cref="PathConfinement"/>):
+    /// the project path usually comes from a log.
+    /// </summary>
+    public static IReadOnlyList<PackageReferenceInfo> GetPackageReferences(string projectPath, string root)
     {
-        if (!File.Exists(projectPath))
+        if (!File.Exists(projectPath) || !PathConfinement.IsReadable(root, projectPath))
         {
             return [];
         }
 
-        var central = FindCentralVersions(Path.GetDirectoryName(Path.GetFullPath(projectPath))!);
+        var central = FindCentralVersions(Path.GetDirectoryName(Path.GetFullPath(projectPath))!, root);
         var result = new List<PackageReferenceInfo>();
         foreach (var element in LoadItems(projectPath, "PackageReference"))
         {
@@ -77,13 +82,18 @@ public static class ProjectInspector
         return null;
     }
 
-    private static Dictionary<string, string> FindCentralVersions(string startDirectory)
+    private static Dictionary<string, string> FindCentralVersions(string startDirectory, string root)
     {
         var versions = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         var dir = new DirectoryInfo(startDirectory);
         while (dir is not null)
         {
             var props = Path.Combine(dir.FullName, "Directory.Packages.props");
+            if (!PathConfinement.IsReadable(root, props))
+            {
+                break; // walked above the root: anything further up is outside it too
+            }
+
             if (File.Exists(props))
             {
                 foreach (var element in LoadItems(props, "PackageVersion"))

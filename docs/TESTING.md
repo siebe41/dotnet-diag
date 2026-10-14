@@ -58,6 +58,7 @@ The tests in `tests/DotnetDiag.Tests/Platform/` cover behavior that differs betw
 | Symlinks and short paths | macOS `/var` is really `/private/var`; Windows uses 8.3 temp paths and junctions | `Checkout_reached_through_a_symlink_is_still_the_workspace` |
 | Git | Worktrees, paths with spaces, branch detection, and uncommitted-file detection with a real `git` | `Worktree_style_git_file_reports_its_branch`, `Real_git_repository_reports_branch_and_uncommitted_files` |
 | The real executable | Pipes, exit codes, UTF-8 output and console width when the process is launched by a shell | `ProcessEndToEndTests` |
+| Untrusted paths | Logs can come from someone else: a path in one must not pull a file outside the workspace (absolute, `../`, a symlink pointing out) or under a dot-folder such as `.git` into the bundle | `PathConfinementTests` (symlink cases are skipped where symlinks cannot be created) |
 
 The CI **smoke test** then installs the packed `.nupkg` with `dotnet tool install`, exactly as a user would. On Windows that means running through the `dotnet-diag.exe` shim. It checks the following:
 

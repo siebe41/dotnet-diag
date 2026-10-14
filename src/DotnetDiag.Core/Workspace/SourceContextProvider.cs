@@ -1,6 +1,10 @@
 namespace DotnetDiag.Core.Workspace;
 
-/// <summary>Reads source lines around a location, resolving log paths through the git workspace.</summary>
+/// <summary>
+/// Reads source lines around a location, resolving log paths through the git workspace. Without a workspace,
+/// only files under the current directory are read, so a log analyzed next to the project it came from still
+/// gets its snippets; a path from a log never reaches a file outside the folder being analyzed.
+/// </summary>
 public sealed class SourceContextProvider(GitWorkspace? workspace)
 {
     private const int MaxLineLength = 160;
@@ -13,7 +17,7 @@ public sealed class SourceContextProvider(GitWorkspace? workspace)
             return null;
         }
 
-        var path = workspace?.Resolve(pathFromLog) ?? (File.Exists(pathFromLog) ? Path.GetFullPath(pathFromLog) : null);
+        var path = PathConfinement.ResolveFromLog(pathFromLog, workspace);
         if (path is null)
         {
             return null;
